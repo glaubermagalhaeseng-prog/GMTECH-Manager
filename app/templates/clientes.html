@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Clientes - GMTECH Manager</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container mt-5">
+
+
+<div class="card shadow">
+
+
+<div class="card-header bg-primary text-white">
+
+<h2>Clientes Cadastrados</h2>
+
+</div>
+
+
+<div class="card-body">
+
+
+<table class="table table-striped">
+
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+<th>Nome</th>
+<th>Tipo</th>
+<th>Cidade</th>
+<th>UC</th>
+<th>Ações</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+
+{% for cliente in clientes %}
+
+<tr>
+
+<td>{{ cliente.id }}</td>
+
+<td>{{ cliente.nome }}</td>
+
+<td>{{ cliente.tipo_cliente }}</td>
+
+<td>{{ cliente.cidade }}</td>
+
+<td>{{ cliente.unidade_consumidora }}</td>
+
+
+<td>
+
+<a href="/clientes/editar/{{cliente.id}}" class="btn btn-warning btn-sm">
+
+Editar
+
+</a>
+
+
+<a href="/clientes/excluir/{{cliente.id}}" class="btn btn-danger btn-sm">
+
+Excluir
+
+</a>
+
+
+</td>
+
+
+</tr>
+
+{% endfor %}
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</body>
+
+</html>

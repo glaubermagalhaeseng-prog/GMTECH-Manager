@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Novo Serviço - GMTECH Manager</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container mt-5">
+
+
+<div class="card shadow">
+
+
+<div class="card-header bg-warning">
+
+<h2>Novo Serviço / Produto</h2>
+
+</div>
+
+
+
+<div class="card-body">
+
+
+<form action="/servicos/salvar" method="post">
+
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Descrição
+
+</label>
+
+
+<input 
+type="text"
+name="descricao"
+class="form-control"
+placeholder="Ex: Painel Solar 575W"
+required
+>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Categoria
+
+</label>
+
+
+<select name="categoria" class="form-select">
+
+
+<option>Equipamento</option>
+
+<option>Material</option>
+
+<option>Serviço</option>
+
+<option>Mão de obra</option>
+
+
+</select>
+
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Valor
+
+</label>
+
+
+<input
+type="number"
+step="0.01"
+name="valor"
+class="form-control"
+placeholder="0.00"
+>
+
+
+</div>
+
+
+
+<div class="text-end">
+
+
+<button type="submit" class="btn btn-success btn-lg">
+
+Salvar Serviço
+
+</button>
+
+
+</div>
+
+
+
+</form>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</body>
+
+</html>

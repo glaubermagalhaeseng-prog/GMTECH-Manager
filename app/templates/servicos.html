@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Serviços - GMTECH Manager</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container mt-5">
+
+
+<div class="card shadow">
+
+
+<div class="card-header bg-warning">
+
+<h2>Serviços e Produtos</h2>
+
+</div>
+
+
+<div class="card-body">
+
+
+<a href="/servicos/novo" class="btn btn-success mb-3">
+
+Novo Serviço
+
+</a>
+
+
+
+<table class="table table-striped">
+
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+
+<th>Descrição</th>
+
+<th>Categoria</th>
+
+<th>Valor</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+
+{% for servico in servicos %}
+
+
+<tr>
+
+<td>{{ servico.id }}</td>
+
+<td>{{ servico.descricao }}</td>
+
+<td>{{ servico.categoria }}</td>
+
+<td>R$ {{ servico.valor }}</td>
+
+</tr>
+
+
+{% endfor %}
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</body>
+
+</html>
