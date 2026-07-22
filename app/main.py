@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
-
+from app.routes import clientes
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.database import (
@@ -13,6 +13,8 @@ from app.database import (
 
 
 app = FastAPI(title="GMTECH Manager")
+
+app.include_router(clientes.router)
 
 
 app.add_middleware(
