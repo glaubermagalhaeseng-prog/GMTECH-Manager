@@ -1,65 +1,21 @@
-from fastapi import FastAPI, Request, Form
-from fastapi.templating import Jinja2Templates
+from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse
-from app.routes import clientes
-from app.routes import servicos
-from app.routes import propostas
-from starlette.middleware.sessions import SessionMiddleware
+from fastapi.templating import Jinja2Templates
 
-from app.database import (
-    conectar,
-    criar_tabela_clientes,
-    criar_tabela_servicos,
-    criar_tabela_propostas
-)
+from app.database import conectar
 
 
-app = FastAPI(title="GMTECH Manager")
-
-app.include_router(clientes.router)
-app.include_router(servicos.router)
-app.include_router(propostas.router)
-
-
-app.add_middleware(
-    SessionMiddleware,
-    secret_key="gmtech-secret-key"
-)
-
+router = APIRouter()
 
 templates = Jinja2Templates(directory="app/templates")
 
 
-criar_tabela_clientes()
-criar_tabela_servicos()
-criar_tabela_propostas()
-
-
-
 # =========================
-# INICIO
-# =========================
-
-
-@app.get("/")
-async def home(request: Request):
-
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html"
-    )
-
-
-
-
-
-
-    # =========================
 # PROPOSTAS
 # =========================
 
 
-@app.get("/propostas/nova")
+@router.get("/propostas/nova")
 async def nova_proposta(request: Request):
 
     conn = conectar()
@@ -133,9 +89,7 @@ async def nova_proposta(request: Request):
 
 
 
-
-
-@app.post("/propostas/adicionar-item")
+@router.post("/propostas/adicionar-item")
 async def adicionar_item(
     request: Request,
     servico_id: int = Form(...),
@@ -198,7 +152,9 @@ async def adicionar_item(
 
     )
 
-@app.post("/propostas/selecionar-cliente")
+
+
+@router.post("/propostas/selecionar-cliente")
 async def selecionar_cliente(
 
     request: Request,
@@ -218,7 +174,9 @@ async def selecionar_cliente(
 
     )
 
-@app.get("/propostas/remover-item/{item_id}")
+
+
+@router.get("/propostas/remover-item/{item_id}")
 async def remover_item(
     request: Request,
     item_id: int
@@ -245,8 +203,10 @@ async def remover_item(
         status_code=303
 
     )
-    
-@app.post("/propostas/salvar")
+
+
+
+@router.post("/propostas/salvar")
 async def salvar_proposta(request: Request):
 
     cliente_id = request.session.get(
