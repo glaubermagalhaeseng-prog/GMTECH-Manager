@@ -99,3 +99,130 @@ async def salvar_servico(
         url="/servicos",
         status_code=303
     )
+
+    # =========================
+# EDITAR SERVIÇO
+# =========================
+
+
+@router.get("/servicos/editar/{id}")
+async def editar_servico(
+    request: Request,
+    id: int
+):
+
+    conn = conectar()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM servicos
+        WHERE id=?
+        """,
+        (id,)
+    )
+
+
+    servico = cursor.fetchone()
+
+
+    conn.close()
+
+
+    return templates.TemplateResponse(
+        request=request,
+        name="editar_servico.html",
+        context={
+            "servico": servico
+        }
+    )
+
+
+
+
+@router.post("/servicos/editar/{id}")
+async def salvar_edicao_servico(
+
+    id: int,
+
+    descricao: str = Form(...),
+    categoria: str = Form(""),
+    valor: float = Form(0)
+
+):
+
+    conn = conectar()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute(
+        """
+        UPDATE servicos SET
+
+        descricao=?,
+        categoria=?,
+        valor=?
+
+        WHERE id=?
+
+        """,
+
+        (
+            descricao,
+            categoria,
+            valor,
+            id
+        )
+
+    )
+
+
+    conn.commit()
+
+    conn.close()
+
+
+    return RedirectResponse(
+        url="/servicos",
+        status_code=303
+    )
+
+
+
+
+
+# =========================
+# EXCLUIR SERVIÇO
+# =========================
+
+
+@router.get("/servicos/excluir/{id}")
+async def excluir_servico(id: int):
+
+    conn = conectar()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute(
+        """
+        DELETE FROM servicos
+        WHERE id=?
+        """,
+        (id,)
+    )
+
+
+    conn.commit()
+
+    conn.close()
+
+
+    return RedirectResponse(
+        url="/servicos",
+        status_code=303
+    )

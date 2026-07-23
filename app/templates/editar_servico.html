@@ -2,7 +2,7 @@
 
 
 {% block title %}
-Novo Serviço - GMTECH Manager
+Editar Serviço - GMTECH Manager
 {% endblock %}
 
 
@@ -16,9 +16,9 @@ Novo Serviço - GMTECH Manager
 
     <h2>
 
-        <i class="bi bi-plus-circle-fill"></i>
+        <i class="bi bi-pencil-square"></i>
 
-        Novo Serviço / Produto
+        Editar Serviço
 
     </h2>
 
@@ -42,7 +42,7 @@ Novo Serviço - GMTECH Manager
 
 
 
-<form action="/servicos/salvar" method="post">
+<form action="/servicos/editar/{{servico.id}}" method="post">
 
 
 
@@ -50,11 +50,12 @@ Novo Serviço - GMTECH Manager
 
 <h5 class="mb-3">
 
-<i class="bi bi-box-seam-fill"></i>
+<i class="bi bi-tools"></i>
 
 Dados do Serviço
 
 </h5>
+
 
 
 
@@ -77,7 +78,7 @@ name="descricao"
 
 class="form-control"
 
-placeholder="Ex: Instalação fotovoltaica 10kWp"
+value="{{servico.descricao}}"
 
 required
 
@@ -110,42 +111,54 @@ name="categoria"
 class="form-select">
 
 
-<option>
+
+<option 
+{% if servico.categoria == "Equipamento" %}selected{% endif %}>
 
 Equipamento
 
 </option>
 
 
-<option>
+
+<option 
+{% if servico.categoria == "Material" %}selected{% endif %}>
 
 Material
 
 </option>
 
 
-<option>
+
+<option 
+{% if servico.categoria == "Serviço" %}selected{% endif %}>
 
 Serviço
 
 </option>
 
 
-<option>
+
+<option 
+{% if servico.categoria == "Mão de obra" %}selected{% endif %}>
 
 Mão de obra
 
 </option>
 
 
-<option>
+
+<option 
+{% if servico.categoria == "Projeto" %}selected{% endif %}>
 
 Projeto
 
 </option>
 
 
-<option>
+
+<option 
+{% if servico.categoria == "Manutenção" %}selected{% endif %}>
 
 Manutenção
 
@@ -154,7 +167,6 @@ Manutenção
 
 
 </select>
-
 
 
 </div>
@@ -184,10 +196,9 @@ name="valor"
 
 class="form-control"
 
-placeholder="0,00"
+value="{{servico.valor}}"
 
 >
-
 
 
 </div>
@@ -211,7 +222,7 @@ class="btn btn-gmtech btn-lg">
 <i class="bi bi-check-circle-fill"></i>
 
 
-Salvar Serviço
+Salvar Alterações
 
 
 </button>

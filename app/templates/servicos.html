@@ -1,48 +1,52 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
-
-<meta charset="UTF-8">
-
-<title>Serviços - GMTECH Manager</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-
-</head>
+{% extends "base.html" %}
 
 
-<body class="bg-light">
+{% block title %}
+Serviços - GMTECH Manager
+{% endblock %}
 
 
-<div class="container mt-5">
+
+{% block content %}
 
 
-<div class="card shadow">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
 
 
-<div class="card-header bg-warning">
+    <h2>
 
-<h2>Serviços e Produtos</h2>
+        <i class="bi bi-tools"></i>
+
+        Serviços e Produtos
+
+    </h2>
+
+
+
+    <a href="/servicos/novo" class="btn btn-gmtech">
+
+        <i class="bi bi-plus-circle-fill"></i>
+
+        Novo Serviço
+
+    </a>
+
 
 </div>
 
 
-<div class="card-body">
 
 
-<a href="/servicos/novo" class="btn btn-success mb-3">
-
-Novo Serviço
-
-</a>
+<div class="card card-dashboard p-4">
 
 
 
-<table class="table table-striped">
+<table class="table table-hover align-middle">
 
 
-<thead>
+<thead class="table-light">
+
 
 <tr>
 
@@ -54,12 +58,17 @@ Novo Serviço
 
 <th>Valor</th>
 
+<th>Ações</th>
+
 </tr>
+
 
 </thead>
 
 
+
 <tbody>
+
 
 
 {% for servico in servicos %}
@@ -67,18 +76,97 @@ Novo Serviço
 
 <tr>
 
-<td>{{ servico.id }}</td>
 
-<td>{{ servico.descricao }}</td>
+<td>
 
-<td>{{ servico.categoria }}</td>
+{{ servico.id }}
 
-<td>R$ {{ servico.valor }}</td>
+</td>
+
+
+
+<td>
+
+<strong>
+
+{{ servico.descricao }}
+
+</strong>
+
+</td>
+
+
+
+<td>
+
+{{ servico.categoria }}
+
+</td>
+
+
+
+<td>
+
+R$ {{ "%.2f"|format(servico.valor) }}
+
+</td>
+
+
+
+<td>
+
+
+
+<a 
+href="/servicos/editar/{{servico.id}}" 
+class="btn btn-warning btn-sm">
+
+<i class="bi bi-pencil-fill"></i>
+
+Editar
+
+</a>
+
+
+
+<a 
+href="/servicos/excluir/{{servico.id}}" 
+class="btn btn-danger btn-sm">
+
+<i class="bi bi-trash-fill"></i>
+
+Excluir
+
+</a>
+
+
+
+</td>
+
 
 </tr>
 
 
 {% endfor %}
+
+
+
+{% if not servicos %}
+
+
+<tr>
+
+<td colspan="5" class="text-center text-muted">
+
+Nenhum serviço cadastrado.
+
+</td>
+
+</tr>
+
+
+{% endif %}
+
 
 
 </tbody>
@@ -90,12 +178,5 @@ Novo Serviço
 </div>
 
 
-</div>
 
-
-</div>
-
-
-</body>
-
-</html>
+{% endblock %}
