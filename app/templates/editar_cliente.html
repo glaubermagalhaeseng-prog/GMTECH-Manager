@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Editar Cliente - GMTECH Manager
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+
+    <h2>
+        <i class="bi bi-pencil-square"></i>
+        Editar Cliente
+    </h2>
+
+
+    <a href="/clientes" class="btn btn-gmtech">
+
+        <i class="bi bi-arrow-left"></i>
+
+        Voltar
+
+    </a>
+
+
+</div>
+
+
+
+
+<div class="card card-dashboard p-4">
+
+
+
+<form action="/clientes/editar/{{cliente.id}}" method="post">
+
+
+
+<h5 class="mb-3">
+
+<i class="bi bi-person-fill"></i>
+
+Dados do Cliente
+
+</h5>
+
+
+
+<div class="row">
+
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label">
+Nome / Razão Social
+</label>
+
+<input 
+type="text"
+name="nome"
+class="form-control"
+value="{{cliente.nome}}"
+required>
+
+</div>
+
+
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label">
+CPF / CNPJ
+</label>
+
+<input 
+type="text"
+name="cpf_cnpj"
+class="form-control"
+value="{{cliente.cpf_cnpj or ''}}">
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="row">
+
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label">
+Telefone
+</label>
+
+<input 
+type="text"
+name="telefone"
+class="form-control"
+value="{{cliente.telefone or ''}}">
+
+</div>
+
+
+
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label">
+E-mail
+</label>
+
+<input 
+type="email"
+name="email"
+class="form-control"
+value="{{cliente.email or ''}}">
+
+</div>
+
+
+</div>
+
+
+
+
+
+<hr>
+
+
+
+<h5 class="mb-3">
+
+<i class="bi bi-geo-alt-fill"></i>
+
+Endereço
+
+</h5>
+
+
+
+
+<div class="row">
+
+
+<div class="col-md-8 mb-3">
+
+<label class="form-label">
+Rua
+</label>
+
+<input 
+type="text"
+name="rua"
+class="form-control"
+value="{{cliente.rua or ''}}">
+
+</div>
+
+
+
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+Número
+</label>
+
+<input 
+type="text"
+name="numero"
+class="form-control"
+value="{{cliente.numero or ''}}">
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="row">
+
+
+<div class="col-md-5 mb-3">
+
+<label class="form-label">
+Bairro
+</label>
+
+<input 
+type="text"
+name="bairro"
+class="form-control"
+value="{{cliente.bairro or ''}}">
+
+</div>
+
+
+
+
+<div class="col-md-5 mb-3">
+
+<label class="form-label">
+Cidade
+</label>
+
+<input 
+type="text"
+name="cidade"
+class="form-control"
+value="{{cliente.cidade or ''}}">
+
+</div>
+
+
+
+
+<div class="col-md-2 mb-3">
+
+<label class="form-label">
+UF
+</label>
+
+<input 
+type="text"
+name="uf"
+class="form-control"
+value="{{cliente.uf or ''}}">
+
+</div>
+
+
+</div>
+
+
+
+
+
+<hr>
+
+
+
+
+
+<h5 class="mb-3">
+
+<i class="bi bi-lightning-charge-fill"></i>
+
+Informações Técnicas
+
+</h5>
+
+
+
+
+
+<div class="row">
+
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label">
+Tipo de Cliente
+</label>
+
+
+<select name="tipo_cliente" class="form-select">
+
+
+<option 
+{% if cliente.tipo_cliente == "Residencial" %}selected{% endif %}>
+Residencial
+</option>
+
+
+<option 
+{% if cliente.tipo_cliente == "Comercial" %}selected{% endif %}>
+Comercial
+</option>
+
+
+<option 
+{% if cliente.tipo_cliente == "Industrial" %}selected{% endif %}>
+Industrial
+</option>
+
+
+<option 
+{% if cliente.tipo_cliente == "Rural" %}selected{% endif %}>
+Rural
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label">
+Unidade Consumidora
+</label>
+
+<input 
+type="text"
+name="unidade_consumidora"
+class="form-control"
+value="{{cliente.unidade_consumidora or ''}}">
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+Observações Técnicas
+</label>
+
+
+<textarea 
+name="observacoes"
+class="form-control"
+rows="4">{{cliente.observacoes or ''}}</textarea>
+
+
+</div>
+
+
+
+
+
+<div class="text-end">
+
+
+<button class="btn btn-gmtech btn-lg">
+
+
+<i class="bi bi-check-circle-fill"></i>
+
+Salvar Alterações
+
+
+</button>
+
+
+</div>
+
+
+
+
+</form>
+
+
+</div>
+
+
+
+{% endblock %}

@@ -152,3 +152,122 @@ async def excluir_cliente(id: int):
         url="/clientes",
         status_code=303
     )
+
+    # =========================
+# EDITAR CLIENTE
+# =========================
+
+
+@router.get("/clientes/editar/{id}")
+async def editar_cliente(
+    request: Request,
+    id: int
+):
+
+    conn = conectar()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM clientes
+        WHERE id=?
+        """,
+        (id,)
+    )
+
+
+    cliente = cursor.fetchone()
+
+
+    conn.close()
+
+
+    return templates.TemplateResponse(
+        request=request,
+        name="editar_cliente.html",
+        context={
+            "cliente": cliente
+        }
+    )
+
+
+
+
+@router.post("/clientes/editar/{id}")
+async def salvar_edicao_cliente(
+
+    id: int,
+
+    nome: str = Form(...),
+    cpf_cnpj: str = Form(""),
+    telefone: str = Form(""),
+    email: str = Form(""),
+    rua: str = Form(""),
+    numero: str = Form(""),
+    bairro: str = Form(""),
+    cidade: str = Form(""),
+    uf: str = Form(""),
+    tipo_cliente: str = Form(""),
+    unidade_consumidora: str = Form(""),
+    observacoes: str = Form("")
+
+):
+
+
+    conn = conectar()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute(
+        """
+        UPDATE clientes SET
+
+        nome=?,
+        cpf_cnpj=?,
+        telefone=?,
+        email=?,
+        rua=?,
+        numero=?,
+        bairro=?,
+        cidade=?,
+        uf=?,
+        tipo_cliente=?,
+        unidade_consumidora=?,
+        observacoes=?
+
+        WHERE id=?
+
+        """,
+
+        (
+            nome,
+            cpf_cnpj,
+            telefone,
+            email,
+            rua,
+            numero,
+            bairro,
+            cidade,
+            uf,
+            tipo_cliente,
+            unidade_consumidora,
+            observacoes,
+            id
+        )
+
+    )
+
+
+    conn.commit()
+
+    conn.close()
+
+
+    return RedirectResponse(
+        url="/clientes",
+        status_code=303
+    )
