@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from app.routes import clientes
 from app.routes import servicos
 from app.routes import propostas
@@ -15,6 +16,8 @@ from app.database import (
 
 
 app = FastAPI(title="GMTECH Manager")
+
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 app.include_router(clientes.router)
 app.include_router(servicos.router)
@@ -44,9 +47,34 @@ criar_tabela_propostas()
 @app.get("/")
 async def home(request: Request):
 
+    conn = conectar()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute("SELECT COUNT(*) FROM clientes")
+    total_clientes = cursor.fetchone()[0]
+
+
+    cursor.execute("SELECT COUNT(*) FROM servicos")
+    total_servicos = cursor.fetchone()[0]
+
+
+    cursor.execute("SELECT COUNT(*) FROM propostas")
+    total_propostas = cursor.fetchone()[0]
+
+
+    conn.close()
+
+
     return templates.TemplateResponse(
         request=request,
-        name="index.html"
+        name="dashboard.html",
+        context={
+            "total_clientes": total_clientes,
+            "total_servicos": total_servicos,
+            "total_propostas": total_propostas
+        }
     )
 
 

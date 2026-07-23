@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Dashboard - GMTECH Manager
+{% endblock %}
+
+
+{% block content %}
+
+
+<h2>
+    Dashboard
+</h2>
+
+<p class="text-muted">
+    Bem-vindo ao GMTECH Manager
+</p>
+
+
+
+<div class="row g-4">
+
+
+    <div class="col-md-4">
+
+        <div class="card card-dashboard card-clientes p-4">
+
+            <h5>
+    <i class="bi bi-people-fill"></i>
+    Clientes
+</h5>
+
+
+<h2 class="numero-dashboard">
+
+    {{ total_clientes }}
+
+</h2>
+
+
+<p class="text-muted">
+
+Clientes cadastrados
+
+</p>
+
+
+<a href="/clientes" class="btn btn-gmtech">
+
+Acessar
+
+</a>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="col-md-4">
+
+        <div class="card card-dashboard card-servicos p-4">
+
+            <h5>
+    <i class="bi bi-tools"></i>
+    Serviços
+</h5>
+
+
+<h2 class="numero-dashboard">
+
+{{ total_servicos }}
+
+</h2>
+
+
+<p class="text-muted">
+
+Serviços cadastrados
+
+</p>
+
+
+<a href="/servicos" class="btn btn-gmtech">
+
+Acessar
+
+</a>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="col-md-4">
+
+        <div class="card card-dashboard card-propostas p-4">
+
+            <h5>
+    <i class="bi bi-file-earmark-text-fill"></i>
+    Propostas
+</h5>
+
+
+<h2 class="numero-dashboard">
+
+{{ total_propostas }}
+
+</h2>
+
+
+<p class="text-muted">
+
+Propostas criadas
+
+</p>
+
+
+<a href="/propostas/nova" class="btn btn-gmtech">
+
+Acessar
+
+</a>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}

@@ -9,6 +9,47 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 
+<style>
+
+.gmtech-header {
+    background: #073B4C;
+}
+
+.btn-gmtech {
+    background: #073B4C;
+    color: white;
+    border: none;
+}
+
+.btn-gmtech:hover {
+    background: #0B566F;
+    color: white;
+}
+
+.btn-proposta {
+    background: #198754;
+    color: white;
+    border: none;
+}
+
+.btn-proposta:hover {
+    background: #146c43;
+    color: white;
+}
+
+.btn-servico {
+    background: #F7941D;
+    color: white;
+    border: none;
+}
+
+.btn-servico:hover {
+    background: #d97800;
+    color: white;
+}
+
+</style>
+
 </head>
 
 
@@ -21,9 +62,9 @@
 <div class="card shadow">
 
 
-<div class="card-header bg-primary text-white">
+<div class="card-header gmtech-header text-white">
 
-<h2>GMTECH Manager</h2>
+<h2>⚡ GMTECH Manager</h2>
 
 </div>
 
@@ -41,7 +82,7 @@ Sistema de Gestão Comercial e Engenharia
 
 
 
-<a href="/propostas/nova" class="btn btn-success btn-lg me-2">
+<a href="/propostas/nova" class="btn btn-proposta btn-lg me-2">
 
 Nova Proposta
 
@@ -49,7 +90,7 @@ Nova Proposta
 
 
 
-<a href="/clientes/novo" class="btn btn-primary btn-lg me-2">
+<a href="/clientes/novo" class="btn btn-gmtech btn-lg me-2">
 
 Novo Cliente
 
@@ -57,7 +98,7 @@ Novo Cliente
 
 
 
-<a href="/clientes" class="btn btn-info btn-lg me-2">
+<a href="/clientes" class="btn btn-gmtech btn-lg me-2">
 
 Clientes Cadastrados
 
@@ -65,7 +106,7 @@ Clientes Cadastrados
 
 
 
-<a href="/servicos" class="btn btn-warning btn-lg">
+<a href="/servicos" class="btn btn-servico btn-lg">
 
 Serviços
 
