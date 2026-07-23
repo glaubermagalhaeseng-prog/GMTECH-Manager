@@ -1,45 +1,52 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
-
-<meta charset="UTF-8">
-
-<title>Nova Proposta - GMTECH Manager</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-
-</head>
+{% extends "base.html" %}
 
 
-<body class="bg-light">
+{% block title %}
+Nova Proposta - GMTECH Manager
+{% endblock %}
 
 
-<div class="container mt-5">
+
+{% block content %}
 
 
-<div class="card shadow">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
 
 
-<div class="card-header bg-success text-white">
+    <h2>
 
-<h2>Nova Proposta</h2>
+        <i class="bi bi-file-earmark-text-fill"></i>
+
+        Nova Proposta
+
+    </h2>
+
 
 </div>
 
 
 
-<div class="card-body">
+
+
+<div class="card card-dashboard p-4">
+
 
 
 <!-- CLIENTE -->
 
-<h5>
+<h5 class="mb-3">
+
+<i class="bi bi-person-fill"></i>
+
 Cliente
+
 </h5>
 
 
+
 <form action="/propostas/selecionar-cliente" method="post">
+
 
 
 <select
@@ -63,6 +70,7 @@ Selecione o cliente
 
 {% for cliente in clientes %}
 
+
 <option value="{{cliente.id}}"
 
 {% if cliente_selecionado == cliente.id %}
@@ -75,10 +83,13 @@ selected
 
 </option>
 
+
 {% endfor %}
 
 
+
 </select>
+
 
 
 </form>
@@ -89,16 +100,22 @@ selected
 
 
 
+
 <!-- ADICIONAR ITEM -->
 
 
-<h5>
+<h5 class="mb-3">
+
+<i class="bi bi-cart-plus-fill"></i>
+
 Adicionar Item
+
 </h5>
 
 
 
 <form action="/propostas/adicionar-item" method="post">
+
 
 
 <div class="row">
@@ -115,34 +132,48 @@ Serviço / Produto
 </label>
 
 
+
 <select
 
 name="servico_id"
 
+id="servico"
+
 class="form-select"
+
+onchange="atualizarValor()"
 
 required
 
 >
 
 
+
 {% for servico in servicos %}
 
 
-<option value="{{servico.id}}">
 
+
+<option 
+value="{{servico.id}}"
+data-valor="{{servico.valor}}"
+>
 {{servico.descricao}}
 
 </option>
 
 
+
 {% endfor %}
+
 
 
 </select>
 
 
+
 </div>
+
 
 
 
@@ -169,14 +200,13 @@ value="1"
 
 min="1"
 
-step="1"
-
 required
 
 >
 
 
 </div>
+
 
 
 
@@ -195,13 +225,15 @@ Valor Unitário
 
 type="number"
 
+step="0.01"
+
 name="valor"
+
+id="valor"
 
 class="form-control"
 
 value="0"
-
-step="0.01"
 
 required
 
@@ -211,6 +243,7 @@ required
 </div>
 
 
+
 </div>
 
 
@@ -218,14 +251,22 @@ required
 <br>
 
 
-<button class="btn btn-primary">
+
+<button class="btn btn-gmtech">
+
+
+<i class="bi bi-plus-circle-fill"></i>
 
 Adicionar Item
+
 
 </button>
 
 
+
 </form>
+
+
 
 
 
@@ -233,10 +274,13 @@ Adicionar Item
 
 
 
+
 <!-- ITENS -->
 
 
-<h5>
+<h5 class="mb-3">
+
+<i class="bi bi-list-check"></i>
 
 Itens da Proposta
 
@@ -244,41 +288,62 @@ Itens da Proposta
 
 
 
-<table class="table table-bordered">
 
 
-<thead>
+<div class="table-responsive">
+
+
+
+<table class="table table-hover align-middle">
+
+
+
+<thead class="table-light">
+
 
 <tr>
 
+
 <th>
+
 Descrição
+
 </th>
 
 
 <th>
-Quantidade
+
+Qtd.
+
 </th>
 
 
 <th>
+
 Valor
+
 </th>
 
 
 <th>
+
 Total
+
 </th>
 
 
 <th>
+
 Ação
+
 </th>
 
 
 </tr>
 
+
 </thead>
+
 
 
 
@@ -287,6 +352,7 @@ Ação
 
 
 {% for item in itens %}
+
 
 
 <tr>
@@ -299,6 +365,7 @@ Ação
 </td>
 
 
+
 <td>
 
 {{item.quantidade}}
@@ -306,21 +373,26 @@ Ação
 </td>
 
 
+
 <td>
 
-R$ {{item.valor}}
+R$ {{ "%.2f"|format(item.valor) }}
 
 </td>
 
 
+
 <td>
 
-R$ {{item.quantidade * item.valor}}
+R$ {{ "%.2f"|format(item.quantidade * item.valor) }}
 
 </td>
 
 
+
 <td>
+
+
 
 <a
 
@@ -328,82 +400,136 @@ href="/propostas/remover-item/{{loop.index0}}"
 
 class="btn btn-danger btn-sm"
 
+
 >
+
+<i class="bi bi-trash-fill"></i>
 
 Excluir
 
+
 </a>
+
 
 
 </td>
 
 
 </tr>
+
 
 
 {% endfor %}
 
 
 
+
+
 {% if not itens %}
+
 
 
 <tr>
 
-<td colspan="5" class="text-center">
+
+<td colspan="5" class="text-center text-muted">
+
 
 Nenhum item adicionado
 
+
 </td>
 
+
 </tr>
+
 
 
 {% endif %}
 
 
+
+
+
 </tbody>
+
 
 
 </table>
 
 
+</div>
 
 
-<h3 class="text-end">
+
+
+
+
+<h3 class="text-end mt-4">
+
 
 Total:
 
-R$ {{total}}
+<strong>
+
+R$ {{ "%.2f"|format(total) }}
+
+</strong>
+
 
 </h3>
 
 
 
-<form action="/propostas/salvar" method="post" class="text-end">
 
 
-<button class="btn btn-success btn-lg">
+
+<div class="text-end mt-4">
+
+
+<form action="/propostas/salvar" method="post">
+
+
+<button class="btn btn-gmtech btn-lg">
+
+
+<i class="bi bi-check-circle-fill"></i>
 
 Salvar Proposta
 
+
 </button>
+
 
 
 </form>
 
 
-
 </div>
 
 
+
+
+
 </div>
 
+<script>
 
-</div>
+function atualizarValor(){
+
+    let select = document.getElementById("servico");
+
+    let valor = select.options[select.selectedIndex]
+    .getAttribute("data-valor");
 
 
-</body>
+    document.getElementById("valor").value = valor;
+
+}
 
 
-</html>
+</script>
+
+
+
+{% endblock %}

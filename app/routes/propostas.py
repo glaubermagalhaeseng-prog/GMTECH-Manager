@@ -11,36 +11,30 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 # =========================
-# PROPOSTAS
+# NOVA PROPOSTA
 # =========================
-
 
 @router.get("/propostas/nova")
 async def nova_proposta(request: Request):
 
     conn = conectar()
-
     cursor = conn.cursor()
 
 
-    cursor.execute(
-        """
+    cursor.execute("""
         SELECT *
         FROM clientes
         ORDER BY nome
-        """
-    )
+    """)
 
     clientes = cursor.fetchall()
 
 
-    cursor.execute(
-        """
+    cursor.execute("""
         SELECT *
         FROM servicos
         ORDER BY descricao
-        """
-    )
+    """)
 
     servicos = cursor.fetchall()
 
@@ -66,50 +60,60 @@ async def nova_proposta(request: Request):
 
 
     return templates.TemplateResponse(
-
         request=request,
-
         name="nova_proposta.html",
-
         context={
-
             "clientes": clientes,
-
             "servicos": servicos,
-
             "itens": itens,
-
             "total": total,
-
             "cliente_selecionado": cliente_selecionado
-
         }
-
     )
 
 
+
+# =========================
+# SELECIONAR CLIENTE
+# =========================
+
+@router.post("/propostas/selecionar-cliente")
+async def selecionar_cliente(
+    request: Request,
+    cliente_id: int = Form(...)
+):
+
+    request.session["cliente_id"] = cliente_id
+
+
+    return RedirectResponse(
+        "/propostas/nova",
+        status_code=303
+    )
+
+
+
+# =========================
+# ADICIONAR ITEM
+# =========================
 
 @router.post("/propostas/adicionar-item")
 async def adicionar_item(
     request: Request,
     servico_id: int = Form(...),
-    quantidade: int = Form(...),
+    quantidade: float = Form(...),
     valor: float = Form(...)
 ):
 
     conn = conectar()
-
     cursor = conn.cursor()
 
 
-    cursor.execute(
-        """
-        SELECT id, descricao
+    cursor.execute("""
+        SELECT descricao
         FROM servicos
         WHERE id = ?
-        """,
-        (servico_id,)
-    )
+    """, (servico_id,))
 
 
     servico = cursor.fetchone()
@@ -124,57 +128,32 @@ async def adicionar_item(
     )
 
 
-    itens.append(
+    itens.append({
 
-        {
+        "servico_id": servico_id,
 
-            "servico_id": servico[0],
+        "descricao": servico["descricao"],
 
-            "servico": servico[1],
+        "quantidade": quantidade,
 
-            "quantidade": quantidade,
+        "valor": valor
 
-            "valor": valor
-
-        }
-
-    )
+    })
 
 
     request.session["itens_proposta"] = itens
 
 
     return RedirectResponse(
-
-        url="/propostas/nova",
-
+        "/propostas/nova",
         status_code=303
-
     )
 
 
 
-@router.post("/propostas/selecionar-cliente")
-async def selecionar_cliente(
-
-    request: Request,
-
-    cliente_id: int = Form(...)
-
-):
-
-    request.session["cliente_id"] = cliente_id
-
-
-    return RedirectResponse(
-
-        url="/propostas/nova",
-
-        status_code=303
-
-    )
-
-
+# =========================
+# REMOVER ITEM
+# =========================
 
 @router.get("/propostas/remover-item/{item_id}")
 async def remover_item(
@@ -197,17 +176,20 @@ async def remover_item(
 
 
     return RedirectResponse(
-
-        url="/propostas/nova",
-
+        "/propostas/nova",
         status_code=303
-
     )
 
 
 
+# =========================
+# SALVAR PROPOSTA
+# =========================
+
 @router.post("/propostas/salvar")
-async def salvar_proposta(request: Request):
+async def salvar_proposta(
+    request: Request
+):
 
     cliente_id = request.session.get(
         "cliente_id"
@@ -223,54 +205,57 @@ async def salvar_proposta(request: Request):
     if not cliente_id or not itens:
 
         return RedirectResponse(
-
-            url="/propostas/nova",
-
+            "/propostas/nova",
             status_code=303
-
         )
 
 
+    total = sum(
+        item["quantidade"] * item["valor"]
+        for item in itens
+    )
+
 
     conn = conectar()
-
     cursor = conn.cursor()
 
 
 
-    cursor.execute(
-
-        """
+    cursor.execute("""
 
         INSERT INTO propostas
 
         (
-
             cliente_id,
-
             data,
-
+            valor_total,
+            status,
+            validade,
             observacoes
-
         )
 
         VALUES
 
-        (?,?,?)
+        (?,?,?,?,?,?)
 
-        """,
+    """,
 
-        (
+    (
 
-            cliente_id,
+        cliente_id,
 
-            "21/07/2026",
+        "23/07/2026",
 
-            ""
+        total,
 
-        )
+        "Aberta",
 
-    )
+        "15 dias",
+
+        ""
+
+    ))
+
 
 
     proposta_id = cursor.lastrowid
@@ -280,9 +265,7 @@ async def salvar_proposta(request: Request):
     for item in itens:
 
 
-        cursor.execute(
-
-            """
+        cursor.execute("""
 
             INSERT INTO itens_proposta
 
@@ -292,6 +275,8 @@ async def salvar_proposta(request: Request):
 
                 servico_id,
 
+                descricao,
+
                 quantidade,
 
                 valor_unitario
@@ -300,23 +285,23 @@ async def salvar_proposta(request: Request):
 
             VALUES
 
-            (?,?,?,?)
+            (?,?,?,?,?)
 
-            """,
+        """,
 
-            (
+        (
 
-                proposta_id,
+            proposta_id,
 
-                item["servico_id"],
+            item["servico_id"],
 
-                item["quantidade"],
+            item["descricao"],
 
-                item["valor"]
+            item["quantidade"],
 
-            )
+            item["valor"]
 
-        )
+        ))
 
 
 
@@ -326,14 +311,19 @@ async def salvar_proposta(request: Request):
 
 
 
-    request.session.clear()
+    request.session.pop(
+        "itens_proposta",
+        None
+    )
 
+
+    request.session.pop(
+        "cliente_id",
+        None
+    )
 
 
     return RedirectResponse(
-
-        url="/",
-
+        "/propostas/nova",
         status_code=303
-
     )

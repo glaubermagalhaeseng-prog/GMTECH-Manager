@@ -11,7 +11,8 @@ from app.database import (
     conectar,
     criar_tabela_clientes,
     criar_tabela_servicos,
-    criar_tabela_propostas
+    criar_tabela_propostas,
+    atualizar_banco
 )
 
 
@@ -36,6 +37,7 @@ templates = Jinja2Templates(directory="app/templates")
 criar_tabela_clientes()
 criar_tabela_servicos()
 criar_tabela_propostas()
+atualizar_banco()
 
 
 

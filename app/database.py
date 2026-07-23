@@ -4,7 +4,6 @@ import sqlite3
 DATABASE = "app/gmtech.db"
 
 
-
 def conectar():
 
     conn = sqlite3.connect(DATABASE)
@@ -12,7 +11,6 @@ def conectar():
     conn.row_factory = sqlite3.Row
 
     return conn
-
 
 
 
@@ -54,8 +52,6 @@ def criar_tabela_clientes():
 
 
 
-
-
 def criar_tabela_servicos():
 
     conn = conectar()
@@ -84,8 +80,6 @@ def criar_tabela_servicos():
 
 
 
-
-
 def criar_tabela_propostas():
 
     conn = conectar()
@@ -102,7 +96,14 @@ def criar_tabela_propostas():
 
         data TEXT,
 
+        valor_total REAL,
+
+        status TEXT,
+
+        validade TEXT,
+
         observacoes TEXT,
+
 
         FOREIGN KEY(cliente_id)
         REFERENCES clientes(id)
@@ -117,16 +118,25 @@ def criar_tabela_propostas():
 
         id INTEGER PRIMARY KEY AUTOINCREMENT,
 
+
         proposta_id INTEGER NOT NULL,
 
-        servico_id INTEGER NOT NULL,
 
-        quantidade REAL,
+        servico_id INTEGER,
+
+
+        descricao TEXT NOT NULL,
+
+
+        quantidade REAL DEFAULT 1,
+
 
         valor_unitario REAL,
 
+
         FOREIGN KEY(proposta_id)
         REFERENCES propostas(id),
+
 
         FOREIGN KEY(servico_id)
         REFERENCES servicos(id)
@@ -139,3 +149,25 @@ def criar_tabela_propostas():
     conn.commit()
 
     conn.close()
+
+def atualizar_banco():
+
+    conn = conectar()
+
+    cursor = conn.cursor()
+
+    try:
+
+        cursor.execute("""
+            ALTER TABLE itens_proposta
+            ADD COLUMN descricao TEXT
+        """)
+
+        conn.commit()
+
+    except sqlite3.OperationalError:
+
+        pass
+
+    conn.close()
+
