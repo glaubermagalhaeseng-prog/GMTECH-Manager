@@ -1,235 +1,185 @@
-/* =================================
+/* ==========================
    GMTECH MANAGER
-   STYLE.CSS
-================================= */
-
-
-/* ===============================
-   GERAL
-================================ */
-
-* {
-    box-sizing: border-box;
-}
+   CSS PRINCIPAL
+========================== */
 
 
 body {
-
-    margin: 0;
-
-    background: #f4f6f9;
-
-    font-family: Arial, Helvetica, sans-serif;
-
-}
-
-body {
-
-    margin: 0;
-
-    background: #d0d1d1;
-
-    font-family: Arial, Helvetica, sans-serif;
-
+    margin:0;
+    background:#f4f6f9;
+    font-family:Arial, Helvetica, sans-serif;
 }
 
 
-/* ===============================
-   SIDEBAR
-================================ */
+/* LAYOUT */
+
+.layout {
+    display:flex;
+    min-height:100vh;
+}
+
+
+/* MENU LATERAL */
 
 .sidebar {
 
-    width: 240px;
+    width:260px;
 
-    height: 100vh;
+    background:#073B4C;
 
-    position: fixed;
+    color:white;
 
-    left: 0;
+    padding:20px;
 
-    top: 0;
+}
 
-    background: #073B4C;
 
-    color: white;
+.logo-area {
 
-    padding: 20px;
+    background:white;
+
+    border-radius:12px;
+
+    padding:15px;
+
+    text-align:center;
+
+}
+
+
+.logo-gmtech {
+
+    width:170px;
+
+}
+
+
+.sidebar hr {
+
+    margin:25px 0;
+
+    opacity:.3;
 
 }
 
 
 
-/* ===============================
-   LOGO
-================================ */
+/* LINKS MENU */
 
-.logo-menu {
+.menu-item {
 
-    background: white;
+    display:flex;
 
-    width: 180px;
+    align-items:center;
 
-    height: 90px;
+    gap:12px;
 
-    margin: 0 auto 30px auto;
+    color:white;
 
-    padding: 8px;
+    text-decoration:none;
 
-    border-radius: 20px;
+    padding:12px 15px;
 
-    display: flex;
+    margin-bottom:8px;
 
-    justify-content: center;
+    border-radius:8px;
 
-    align-items: center;
+    background:rgba(255,255,255,0.08);
 
-}
-
-
-.logo-menu img {
-
-    max-width: 100%;
-
-    max-height: 80px;
+    transition:.3s;
 
 }
 
 
+.menu-item:hover {
 
-/* ===============================
-   MENU LATERAL
-================================ */
+    background:#F7941D;
 
-.menu-lateral {
+    color:white;
 
-    list-style: none;
-
-    padding: 0;
-
-    margin: 0;
+    transform:translateX(5px);
 
 }
 
 
 
-.menu-lateral li {
+.menu-item i {
 
-    margin-bottom: 10px;
+    width:25px;
 
-}
-
-
-
-.menu-lateral li a {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 12px;
-
-    width: 100%;
-
-    padding: 12px 15px;
-
-    border-radius: 10px;
-
-    text-decoration: none;
-
-    color: white;
-
-    background: #0B566F;
-
-    transition: .3s;
+    font-size:20px;
 
 }
 
 
 
-.menu-lateral li a:hover {
+.menu-item:hover {
 
-    background: #F7941D;
+    background:#F7941D;
 
-    color: white;
-
-    transform: translateX(5px);
+    color:white;
 
 }
 
 
 
-.menu-lateral li a i {
-
-    width: 25px;
-
-    font-size: 20px;
-
-}
 
 
+/* ÁREA PRINCIPAL */
 
-/* ===============================
-   CONTEÚDO
-================================ */
 
 .content {
 
-    margin-left: 240px;
+    flex:1;
 
-    padding: 30px;
-
-}
-
-
-
-/* ===============================
-   BOTÃO GMTECH
-================================ */
-
-.btn-gmtech {
-
-    background: #073B4C;
-
-    color: white;
-
-    border: none;
-
-    border-radius: 8px;
-
-    padding: 10px 20px;
-
-    transition: .3s;
+    padding:25px;
 
 }
 
 
 
-.btn-gmtech:hover {
+.topbar {
 
-    background: #F7941D;
+    background:white;
 
-    color: white;
+    padding:15px 25px;
+
+    border-radius:12px;
+
+    box-shadow:0 3px 12px rgba(0,0,0,.08);
+
+    margin-bottom:25px;
 
 }
 
 
 
-/* ===============================
-   CARDS DASHBOARD
-================================ */
+.page-content {
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:12px;
+
+    box-shadow:0 3px 12px rgba(0,0,0,.05);
+
+}
+
+
+
+/* DASHBOARD */
+
 
 .card-dashboard {
 
-    border: none;
+    border:none;
 
-    border-radius: 15px;
+    border-radius:15px;
 
-    background: white;
+    box-shadow:0 5px 15px rgba(0,0,0,.12);
 
-    transition: .3s;
-
-    box-shadow: 0 4px 12px rgba(0,0,0,.10);
+    transition:.3s;
 
 }
 
@@ -237,47 +187,7 @@ body {
 
 .card-dashboard:hover {
 
-    transform: translateY(-5px);
-
-    box-shadow: 0 8px 20px rgba(0,0,0,.15);
-
-}
-
-
-
-/* CORES DOS CARDS */
-
-.card-clientes {
-
-    border-left: 6px solid #073B4C;
-
-}
-
-
-
-.card-servicos {
-
-    border-left: 6px solid #F7941D;
-
-}
-
-
-
-.card-propostas {
-
-    border-left: 6px solid #198754;
-
-}
-
-
-
-/* TEXTOS */
-
-.card-dashboard h5 {
-
-    color: #073B4C;
-
-    font-weight: 600;
+    transform:translateY(-5px);
 
 }
 
@@ -285,10 +195,83 @@ body {
 
 .numero-dashboard {
 
-    font-size: 42px;
+    font-size:42px;
 
-    font-weight: bold;
+    font-weight:bold;
 
-    color: #073B4C;
+}
+
+
+/* CORES DOS CARDS */
+
+.card-clientes {
+
+    border-left:8px solid #073B4C;
+
+}
+
+
+.card-servicos {
+
+    border-left:8px solid #F7941D;
+
+}
+
+
+.card-propostas {
+
+    border-left:8px solid #198754;
+
+}
+
+
+
+/* BOTÕES DASHBOARD */
+
+
+.btn-gmtech,
+.btn-proposta,
+.btn-servico {
+
+    background:#073B4C !important;
+
+    color:white !important;
+
+    border:none;
+
+}
+
+
+
+.btn-gmtech:hover,
+.btn-proposta:hover,
+.btn-servico:hover {
+
+    background:#F7941D !important;
+
+    color:white !important;
+
+}
+
+
+
+/* RESPONSIVO */
+
+
+@media(max-width:768px){
+
+.layout{
+
+    flex-direction:column;
+
+}
+
+
+.sidebar{
+
+    width:100%;
+
+}
+
 
 }

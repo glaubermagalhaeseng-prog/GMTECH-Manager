@@ -1,3 +1,7 @@
+from fastapi.responses import FileResponse
+from app.pdf.gerador import gerar_pdf_proposta
+import os
+from datetime import datetime
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -244,7 +248,7 @@ async def salvar_proposta(
 
         cliente_id,
 
-        "23/07/2026",
+        datetime.now().strftime("%d/%m/%Y"),
 
         total,
 
@@ -326,4 +330,206 @@ async def salvar_proposta(
     return RedirectResponse(
         "/propostas/nova",
         status_code=303
+    )
+
+@router.get("/propostas")
+async def listar_propostas(request: Request):
+
+    conn = conectar()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute("""
+    SELECT 
+        propostas.id,
+        propostas.data,
+        propostas.status,
+        clientes.nome AS cliente_nome,
+        SUM(itens_proposta.quantidade * itens_proposta.valor_unitario) AS valor_total
+
+    FROM propostas
+
+    INNER JOIN clientes
+
+    ON propostas.cliente_id = clientes.id
+
+
+    LEFT JOIN itens_proposta
+
+    ON propostas.id = itens_proposta.proposta_id
+
+
+    GROUP BY propostas.id
+
+
+    ORDER BY propostas.id DESC
+""")
+
+
+    propostas = cursor.fetchall()
+
+
+    conn.close()
+
+
+    return templates.TemplateResponse(
+
+        request=request,
+
+        name="propostas.html",
+
+        context={
+
+            "propostas": propostas
+
+        }
+
+    )
+
+# =========================
+# GERAR PDF DA PROPOSTA
+# =========================
+
+@router.get("/propostas/{proposta_id}/pdf")
+async def gerar_pdf(
+    proposta_id: int
+):
+
+    conn = conectar()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute("""
+        SELECT 
+            propostas.*,
+
+            clientes.nome AS cliente_nome,
+            clientes.telefone AS cliente_telefone,
+            clientes.email AS cliente_email,
+            clientes.cidade AS cliente_cidade,
+            clientes.uf AS cliente_uf
+
+        FROM propostas
+
+        INNER JOIN clientes
+
+        ON propostas.cliente_id = clientes.id
+
+        WHERE propostas.id = ?
+    """, (proposta_id,))
+
+    proposta = cursor.fetchone()
+
+    print(dict(proposta))
+
+
+
+    cursor.execute("""
+        SELECT *
+
+        FROM itens_proposta
+
+        WHERE proposta_id = ?
+
+    """, (proposta_id,))
+
+
+    itens = cursor.fetchall()
+
+
+    conn.close()
+
+
+
+    caminho = f"proposta_{proposta_id}.pdf"
+
+
+
+    gerar_pdf_proposta(
+
+        caminho,
+
+        proposta,
+
+        itens
+
+    )
+
+
+
+    return FileResponse(
+
+        caminho,
+
+        media_type="application/pdf",
+
+        filename=caminho
+
+    )
+
+# =========================
+# VISUALIZAR PROPOSTA
+# =========================
+
+@router.get("/propostas/{proposta_id}")
+async def visualizar_proposta(
+    request: Request,
+    proposta_id: int
+):
+
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT
+        propostas.*,
+
+        clientes.nome AS cliente_nome,
+        clientes.telefone AS cliente_telefone,
+        clientes.email AS cliente_email,
+        clientes.cidade AS cliente_cidade,
+        clientes.uf AS cliente_uf
+
+FROM propostas
+
+INNER JOIN clientes
+
+ON propostas.cliente_id = clientes.id
+
+WHERE propostas.id = ?
+    """, (proposta_id,))
+
+    proposta = cursor.fetchone()
+
+    
+
+    cursor.execute("""
+        SELECT *
+
+        FROM itens_proposta
+
+        WHERE proposta_id = ?
+    """, (proposta_id,))
+
+    itens = cursor.fetchall()
+
+    conn.close()
+
+
+    return templates.TemplateResponse(
+
+        request=request,
+
+        name="visualizar_proposta.html",
+
+        context={
+
+            "proposta": proposta,
+
+            "itens": itens
+
+        }
+
     )
