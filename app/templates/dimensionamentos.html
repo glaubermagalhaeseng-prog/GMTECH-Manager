@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Dimensionamentos
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+
+    <h2>
+
+        <i class="bi bi-sun-fill"></i>
+
+        Dimensionamentos Solares
+
+    </h2>
+
+
+
+    <a href="/dimensionador" class="btn btn-gmtech">
+
+        <i class="bi bi-plus-circle"></i>
+
+        Novo Dimensionamento
+
+    </a>
+
+
+</div>
+
+
+
+
+
+<div class="card card-dashboard">
+
+    <div class="card-body">
+
+
+        <table class="table table-hover">
+
+
+            <thead>
+
+                <tr>
+
+                    <th>Cliente</th>
+
+                    <th>Modalidade</th>
+
+                    <th>Consumo</th>
+
+                    <th>Sistema</th>
+
+                    <th>Módulos</th>
+
+                    <th>Inversor</th>
+
+                    <th>Geração</th>
+
+                    <th>Economia</th>
+
+                    <th>Data</th>
+
+                    <th>Ações</th>
+
+                </tr>
+
+            </thead>
+
+
+
+            <tbody>
+
+
+                {% for item in dimensionamentos %}
+
+
+                <tr>
+
+
+                    <td>
+
+                        {{ item.cliente_nome }}
+
+                    </td>
+
+                    <td>
+
+                        {{ item.modalidade }}
+
+                    </td>
+
+                    <td>
+
+                        {{ item.consumo_medio }} kWh
+
+                    </td>
+
+
+
+                    <td>
+
+                        {{ "%.2f"|format(item.potencia_final_kwp) }} kWp
+
+                    </td>
+
+
+
+                    <td>
+
+                        {{ item.quantidade_modulos }}
+
+                    </td>
+
+                    <td>
+
+                        {{ item.modelo_inversor }}
+
+                        <br>
+
+                        <small class="text-muted">
+
+                            {{ item.potencia_inversor }} kW
+
+                        </small>
+
+                    </td>
+
+                    <td>
+
+                        {{ item.geracao_estimada }} kWh
+
+                    </td>
+
+
+
+                    <td>
+
+                        R$ {{ "%.2f"|format(item.economia_estimada) }}
+
+                    </td>
+
+
+
+                    <td>
+
+                        {{ item.data }}
+
+                    </td>
+
+                    <td>
+
+                    <td>
+
+
+                    <td>
+
+                    <td>
+
+                        <div class="d-flex gap-1 align-items-center">
+
+                            <a href="/dimensionamentos/{{ item.id }}" class="btn btn-sm btn-gmtech" title="Visualizar">
+
+                                <i class="bi bi-eye"></i>
+
+                            </a>
+
+
+                            <a href="/dimensionamentos/{{ item.id }}/editar" class="btn btn-sm btn-editar-gmtech"
+                                title="Editar">
+
+                                <i class="bi bi-pencil"></i>
+
+                            </a>
+
+
+                            <a href="/dimensionamentos/{{ item.id }}/excluir" class="btn btn-sm btn-excluir-gmtech"
+                                title="Excluir"
+                                onclick="return confirm('Deseja realmente excluir este dimensionamento?');">
+
+                                <i class="bi bi-trash"></i>
+
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                    </td>
+
+
+                </tr>
+
+
+
+                {% else %}
+
+
+                <tr>
+
+                    <td colspan="10" class="text-center text-muted">
+
+                        Nenhum dimensionamento cadastrado
+
+                    </td>
+
+                </tr>
+
+
+                {% endfor %}
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+</div>
+
+
+{% endblock %}

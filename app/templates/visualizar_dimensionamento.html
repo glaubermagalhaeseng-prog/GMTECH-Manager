@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Visualizar Dimensionamento
+{% endblock %}
+
+
+
+{% block content %}
+
+
+
+<h2 class="mb-4">
+
+<i class="bi bi-sun-fill"></i>
+
+Dimensionamento Solar #{{ dimensionamento.id }}
+
+</h2>
+
+
+
+
+<div class="card card-dashboard mb-4">
+
+<div class="card-body">
+
+
+
+<h5>
+Cliente
+</h5>
+
+
+<p>
+{{ dimensionamento.cliente_nome }}
+</p>
+
+
+
+<hr>
+
+
+
+<h5>
+Consumo
+</h5>
+
+
+<p>
+Consumo médio:
+{{ dimensionamento.consumo_medio }} kWh/mês
+</p>
+
+
+<p>
+Produtividade:
+{{ dimensionamento.produtividade }} kWh/kWp
+</p>
+
+
+
+<hr>
+
+
+
+<h5>
+Sistema Fotovoltaico
+</h5>
+
+
+
+<p>
+Potência necessária:
+
+{{ "%.2f"|format(dimensionamento.potencia_calculada_kwp) }}
+
+kWp
+
+</p>
+
+
+
+
+<p>
+Quantidade de módulos:
+
+{{ dimensionamento.quantidade_modulos }}
+
+unidades
+
+</p>
+
+
+
+
+<p>
+Potência do módulo:
+
+{{ dimensionamento.potencia_modulo }}
+
+Wp
+
+</p>
+
+
+
+<p>
+Potência instalada:
+
+{{ "%.2f"|format(dimensionamento.potencia_final_kwp) }}
+
+kWp
+
+</p>
+
+
+
+<hr>
+
+
+
+
+<h5>
+Equipamentos
+</h5>
+
+
+
+
+<p>
+<strong>Módulo:</strong>
+
+{{ dimensionamento.fabricante_modulo }}
+
+{{ dimensionamento.modelo_modulo }}
+
+</p>
+
+
+
+<p>
+<strong>Inversor:</strong>
+
+{{ dimensionamento.fabricante_inversor }}
+
+{{ dimensionamento.modelo_inversor }}
+
+</p>
+
+
+
+<p>
+<strong>Potência do inversor:</strong>
+
+{{ dimensionamento.potencia_inversor }}
+
+kW
+
+</p>
+
+
+
+<hr>
+
+
+
+
+<h5>
+Resultados estimados
+</h5>
+
+
+
+<p>
+
+Geração mensal:
+
+{{ dimensionamento.geracao_estimada }}
+
+kWh
+
+</p>
+
+
+
+
+<p>
+
+Tarifa:
+
+R$
+
+{{ "%.2f"|format(dimensionamento.tarifa_energia) }}
+
+</p>
+
+
+
+
+<p>
+
+Economia estimada:
+
+R$
+
+{{ "%.2f"|format(dimensionamento.economia_estimada) }}
+
+</p>
+
+
+
+<hr>
+
+
+
+<a href="/dimensionamentos"
+
+class="btn btn-gmtech">
+
+Voltar
+
+</a>
+
+<a href="/dimensionamentos/{{ dimensionamento.id }}/gerar-proposta"
+
+class="btn btn-servico">
+
+<i class="bi bi-file-earmark-text"></i>
+
+Gerar Proposta
+
+</a>
+
+
+
+</div>
+
+</div>
+
+
+
+{% endblock %}

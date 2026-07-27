@@ -113,18 +113,6 @@ body {
 
 
 
-.menu-item:hover {
-
-    background:#F7941D;
-
-    color:white;
-
-}
-
-
-
-
-
 /* ÁREA PRINCIPAL */
 
 
@@ -253,7 +241,50 @@ body {
 
 }
 
+/* ==========================
+   BOTÕES DE AÇÃO - TABELAS
+========================== */
 
+
+.btn-editar-gmtech {
+
+    background-color:#F7941D !important;
+
+    color:white !important;
+
+    border:none !important;
+
+}
+
+
+.btn-editar-gmtech:hover {
+
+    background-color:#d97d0c !important;
+
+    color:white !important;
+
+}
+
+
+
+.btn-excluir-gmtech {
+
+    background-color:#dc3545 !important;
+
+    color:white !important;
+
+    border:none !important;
+
+}
+
+
+.btn-excluir-gmtech:hover {
+
+    background-color:#bb2d3b !important;
+
+    color:white !important;
+
+}
 
 /* RESPONSIVO */
 

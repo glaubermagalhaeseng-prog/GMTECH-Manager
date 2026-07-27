@@ -1,29 +1,11 @@
-# Estilos e cores do PDF GMTECH
-from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.enums import TA_CENTER
 
-# ==========================
-# CORES GMTECH
-# ==========================
+estilos = getSampleStyleSheet()
 
-AZUL = colors.HexColor("#073B4C")
-LARANJA = colors.HexColor("#F7941D")
-VERDE = colors.HexColor("#198754")
+titulo = estilos["Title"]
+titulo.alignment = TA_CENTER
 
-CINZA = colors.HexColor("#F4F6F9")
-CINZA_ESCURO = colors.HexColor("#555555")
+normal = estilos["Normal"]
 
-BRANCO = colors.white
-PRETO = colors.black
-
-
-# ==========================
-# TAMANHOS
-# ==========================
-
-TITULO = 20
-
-SUBTITULO = 14
-
-TEXTO = 10
-
-PEQUENO = 8
+heading = estilos["Heading2"]

@@ -1,18 +1,37 @@
+   
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 from starlette.middleware.sessions import SessionMiddleware
 
+
+from app.routes import dimensionador
 from app.routes import clientes
 from app.routes import servicos
 from app.routes import propostas
+from app.routes import sistema_solar
+from app.routes import empresa
+from app.routes import dimensionamentos
 
 from app.database import (
     conectar,
     criar_tabela_clientes,
+    criar_tabela_sistemas_solares,
     criar_tabela_servicos,
     criar_tabela_propostas,
+    criar_tabela_empresa,
+    atualizar_banco
+)
+
+from app.database import (
+    conectar,
+    criar_tabela_clientes,
+    criar_tabela_sistemas_solares,
+    criar_tabela_servicos,
+    criar_tabela_propostas,
+    criar_tabela_empresa,
+    criar_tabela_dimensionamentos_solares,
     atualizar_banco
 )
 
@@ -61,6 +80,10 @@ templates = Jinja2Templates(
 # =========================
 
 app.include_router(
+    empresa.router
+)
+
+app.include_router(
     clientes.router
 )
 
@@ -72,6 +95,21 @@ app.include_router(
     propostas.router
 )
 
+app.include_router(
+    sistema_solar.router
+)
+
+app.include_router(
+    dimensionador.router
+)
+
+app.include_router(
+    sistema_solar.router
+)
+
+app.include_router(
+    dimensionamentos.router
+)
 
 # =========================
 # BANCO DE DADOS
@@ -82,6 +120,12 @@ criar_tabela_clientes()
 criar_tabela_servicos()
 
 criar_tabela_propostas()
+
+criar_tabela_empresa()
+
+criar_tabela_sistemas_solares()
+
+criar_tabela_dimensionamentos_solares()
 
 atualizar_banco()
 

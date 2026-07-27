@@ -392,81 +392,58 @@ async def listar_propostas(request: Request):
 # =========================
 
 @router.get("/propostas/{proposta_id}/pdf")
-async def gerar_pdf(
-    proposta_id: int
-):
+async def gerar_pdf(proposta_id: int):
 
     conn = conectar()
-
     cursor = conn.cursor()
 
-
     cursor.execute("""
-        SELECT 
+        SELECT
             propostas.*,
-
             clientes.nome AS cliente_nome,
             clientes.telefone AS cliente_telefone,
             clientes.email AS cliente_email,
             clientes.cidade AS cliente_cidade,
             clientes.uf AS cliente_uf
-
         FROM propostas
-
         INNER JOIN clientes
-
-        ON propostas.cliente_id = clientes.id
-
+            ON propostas.cliente_id = clientes.id
         WHERE propostas.id = ?
     """, (proposta_id,))
 
     proposta = cursor.fetchone()
 
-    print(dict(proposta))
+    cursor.execute("""
+        SELECT *
+        FROM empresa
+        LIMIT 1
+    """)
 
-
+    empresa = cursor.fetchone()
 
     cursor.execute("""
         SELECT *
-
         FROM itens_proposta
-
         WHERE proposta_id = ?
-
     """, (proposta_id,))
-
 
     itens = cursor.fetchall()
 
-
     conn.close()
-
-
 
     caminho = f"proposta_{proposta_id}.pdf"
 
-
-
     gerar_pdf_proposta(
-
         caminho,
-
         proposta,
-
-        itens
-
+        itens,
+        empresa
     )
 
-
-
     return FileResponse(
-
         caminho,
-
         media_type="application/pdf",
-
         filename=caminho
-
     )
 
 # =========================
@@ -482,6 +459,11 @@ async def visualizar_proposta(
     conn = conectar()
     cursor = conn.cursor()
 
+
+    # =========================
+    # DADOS DA PROPOSTA
+    # =========================
+
     cursor.execute("""
     SELECT
         propostas.*,
@@ -492,18 +474,24 @@ async def visualizar_proposta(
         clientes.cidade AS cliente_cidade,
         clientes.uf AS cliente_uf
 
-FROM propostas
+    FROM propostas
 
-INNER JOIN clientes
+    INNER JOIN clientes
 
-ON propostas.cliente_id = clientes.id
+    ON propostas.cliente_id = clientes.id
 
-WHERE propostas.id = ?
+    WHERE propostas.id = ?
+
     """, (proposta_id,))
+
 
     proposta = cursor.fetchone()
 
-    
+
+
+    # =========================
+    # ITENS DA PROPOSTA
+    # =========================
 
     cursor.execute("""
         SELECT *
@@ -511,11 +499,34 @@ WHERE propostas.id = ?
         FROM itens_proposta
 
         WHERE proposta_id = ?
+
     """, (proposta_id,))
+
 
     itens = cursor.fetchall()
 
+
+
+    # =========================
+    # SISTEMAS SOLARES
+    # =========================
+
+    cursor.execute("""
+        SELECT *
+
+        FROM sistemas_solares
+
+        WHERE proposta_id = ?
+
+    """, (proposta_id,))
+
+
+    sistemas_solares = cursor.fetchall()
+
+
+
     conn.close()
+
 
 
     return templates.TemplateResponse(
@@ -528,8 +539,11 @@ WHERE propostas.id = ?
 
             "proposta": proposta,
 
-            "itens": itens
+            "itens": itens,
+
+            "sistemas_solares": sistemas_solares
 
         }
 
     )
+

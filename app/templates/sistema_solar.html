@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Sistema Fotovoltaico
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2>
+        <i class="bi bi-sun-fill"></i>
+        Sistema Fotovoltaico
+    </h2>
+
+</div>
+
+
+
+<div class="card card-dashboard">
+
+<div class="card-body">
+
+
+<form method="post" action="/propostas/{{ proposta_id }}/sistema-solar/salvar">
+
+
+<div class="row g-3">
+
+
+
+<div class="col-md-4">
+
+<label class="form-label">
+Potência do Sistema (kWp)
+</label>
+
+<input 
+type="number"
+step="0.01"
+name="potencia_kwp"
+class="form-control"
+required>
+
+</div>
+
+
+
+<div class="col-md-4">
+
+<label class="form-label">
+Quantidade de Módulos
+</label>
+
+<input 
+type="number"
+name="quantidade_modulos"
+class="form-control"
+required>
+
+</div>
+
+
+
+<div class="col-md-4">
+
+<label class="form-label">
+Potência do Módulo (Wp)
+</label>
+
+<input 
+type="number"
+name="potencia_modulo"
+class="form-control"
+required>
+
+</div>
+
+
+
+<div class="col-md-6">
+
+<label class="form-label">
+Fabricante do Módulo
+</label>
+
+<input 
+type="text"
+name="fabricante_modulo"
+class="form-control"
+placeholder="Ex: Trina Solar"
+required>
+
+</div>
+
+
+
+<div class="col-md-6">
+
+<label class="form-label">
+Modelo do Inversor
+</label>
+
+<input 
+type="text"
+name="modelo_inversor"
+class="form-control"
+placeholder="Ex: Huawei SUN2000-20KTL"
+required>
+
+</div>
+
+
+
+<div class="col-md-4">
+
+<label class="form-label">
+Potência do Inversor (kW)
+</label>
+
+<input 
+type="number"
+step="0.01"
+name="potencia_inversor"
+class="form-control"
+required>
+
+</div>
+
+
+
+<div class="col-md-4">
+
+<label class="form-label">
+Geração Mensal (kWh)
+</label>
+
+<input 
+type="number"
+step="0.01"
+name="geracao_mensal"
+class="form-control"
+required>
+
+</div>
+
+
+
+<div class="col-md-4">
+
+<label class="form-label">
+Economia Mensal (R$)
+</label>
+
+<input 
+type="number"
+step="0.01"
+name="economia_mensal"
+class="form-control"
+required>
+
+</div>
+
+
+
+<div class="col-md-12">
+
+<label class="form-label">
+Observações
+</label>
+
+<textarea
+name="observacoes"
+class="form-control"
+rows="4"></textarea>
+
+</div>
+
+
+
+</div>
+
+
+
+<div class="mt-4">
+
+
+<button 
+type="submit"
+class="btn btn-gmtech">
+
+<i class="bi bi-check-circle"></i>
+
+Salvar Sistema
+
+</button>
+
+
+
+<a 
+href="/propostas/{{ proposta_id }}"
+class="btn btn-secondary">
+
+Cancelar
+
+</a>
+
+
+</div>
+
+
+</form>
+
+
+</div>
+
+</div>
+
+
+{% endblock %}

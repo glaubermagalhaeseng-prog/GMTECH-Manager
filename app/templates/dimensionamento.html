@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Dimensionamento Solar
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2>
+        <i class="bi bi-sun-fill"></i>
+        Dimensionamento Solar
+    </h2>
+
+
+    <a href="/dimensionamentos" class="btn btn-gmtech">
+        <i class="bi bi-arrow-left"></i>
+        Voltar
+    </a>
+    <button onclick="window.print()" class="btn btn-secondary">
+
+        <i class="bi bi-printer"></i>
+
+        Imprimir
+
+    </button>
+
+</div>
+
+
+
+
+<div class="row g-4">
+
+
+    <!-- CLIENTE -->
+
+    <div class="col-md-6">
+
+        <div class="card card-dashboard h-100">
+
+            <div class="card-body">
+
+                <h4>
+                    <i class="bi bi-person"></i>
+                    Cliente
+                </h4>
+
+                <hr>
+
+                <p>
+                    <strong>Nome:</strong><br>
+                    {{ dimensionamento.cliente_nome }}
+                </p>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+
+
+    <!-- DADOS DO PROJETO -->
+
+    <div class="col-md-6">
+
+        <div class="card card-dashboard h-100">
+
+            <div class="card-body">
+
+
+                <h4>
+                    <i class="bi bi-file-earmark-text"></i>
+                    Dados do Projeto
+                </h4>
+
+                <hr>
+
+
+                <p>
+                    <strong>Modalidade:</strong><br>
+                    {{ dimensionamento.modalidade }}
+                </p>
+
+
+                <p>
+                    <strong>Ano de conexão:</strong><br>
+                    {{ dimensionamento.ano_conexao }}
+                </p>
+
+
+                <p>
+                    <strong>Consumo médio:</strong><br>
+                    {{ dimensionamento.consumo_medio }} kWh
+                </p>
+
+
+                <p>
+                    <strong>Consumo corrigido:</strong><br>
+                    {{ dimensionamento.consumo_corrigido }} kWh
+                </p>
+
+
+                {% if dimensionamento.quantidade_beneficiarias > 0 %}
+
+                <p>
+                    <strong>Beneficiárias:</strong><br>
+                    {{ dimensionamento.quantidade_beneficiarias }}
+                </p>
+
+                {% endif %}
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+    <!-- SISTEMA -->
+
+    <div class="col-md-6">
+
+
+        <div class="card card-dashboard h-100">
+
+
+            <div class="card-body">
+
+
+                <h4>
+                    <i class="bi bi-grid-3x3-gap"></i>
+                    Sistema Fotovoltaico
+                </h4>
+
+
+                <hr>
+
+
+
+                <p>
+                    <strong>Potência instalada:</strong><br>
+
+                    {{ "%.2f"|format(dimensionamento.potencia_final_kwp) }} kWp
+
+                </p>
+
+
+
+                <p>
+                    <strong>Módulos:</strong><br>
+
+                    {{ dimensionamento.quantidade_modulos }} unidades
+
+                </p>
+
+
+
+                <p>
+                    <strong>Potência do módulo:</strong><br>
+
+                    {{ dimensionamento.potencia_modulo }} W
+
+                </p>
+
+
+
+                <p>
+                    <strong>Geração estimada:</strong><br>
+
+                    {{ dimensionamento.geracao_estimada }} kWh
+
+                </p>
+
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- INVERSOR -->
+
+    <div class="col-md-6">
+
+
+        <div class="card card-dashboard h-100">
+
+
+            <div class="card-body">
+
+
+                <h4>
+                    <i class="bi bi-cpu"></i>
+                    Inversor
+                </h4>
+
+
+                <hr>
+
+
+                <p>
+                    <strong>Fabricante:</strong><br>
+
+                    {{ dimensionamento.fabricante_inversor }}
+
+                </p>
+
+
+                <p>
+                    <strong>Modelo:</strong><br>
+
+                    {{ dimensionamento.modelo_inversor }}
+
+                </p>
+
+
+                <p>
+                    <strong>Potência:</strong><br>
+
+                    {{ dimensionamento.potencia_inversor }} kW
+
+                </p>
+
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- FINANCEIRO -->
+
+    <div class="col-md-12">
+
+
+        <div class="card card-dashboard">
+
+
+            <div class="card-body">
+
+
+                <h4>
+                    <i class="bi bi-currency-dollar"></i>
+                    Análise Financeira
+                </h4>
+
+
+                <hr>
+
+
+
+                <div class="row">
+
+
+                    <div class="col-md-4">
+
+                        <strong>
+                            Economia bruta
+                        </strong>
+
+                        <h3>
+                            R$ {{ "%.2f"|format(dimensionamento.economia_bruta) }}
+                        </h3>
+
+                    </div>
+
+
+
+                    <div class="col-md-4">
+
+                        <strong>
+                            Custo Fio B
+                        </strong>
+
+                        <h3>
+                            R$ {{ "%.2f"|format(dimensionamento.custo_fio_b) }}
+                        </h3>
+
+                    </div>
+
+
+
+                    <div class="col-md-4">
+
+                        <strong>
+                            Economia líquida
+                        </strong>
+
+                        <h3>
+                            R$ {{ "%.2f"|format(dimensionamento.economia_liquida) }}
+                        </h3>
+
+                    </div>
+
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+</div>
+
+
+{% endblock %}
