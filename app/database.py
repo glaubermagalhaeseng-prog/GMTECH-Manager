@@ -244,6 +244,10 @@ def criar_tabela_sistemas_solares():
 
         economia_mensal REAL,
 
+        valor_conta_atual REAL,
+
+        valor_conta_residual REAL,
+
         observacoes TEXT,
 
 
@@ -330,6 +334,123 @@ def criar_tabela_dimensionamentos_solares():
 
 
 # ==========================================
+# LEADS (SIMULADOR PÚBLICO)
+# ==========================================
+
+def criar_tabela_leads():
+
+    conn = conectar()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS leads (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        nome TEXT NOT NULL,
+
+        telefone TEXT NOT NULL,
+
+        email TEXT,
+
+        cidade TEXT,
+
+        uf TEXT,
+
+        valor_conta REAL,
+
+        consumo_estimado REAL,
+
+        potencia_estimada_kwp REAL,
+
+        quantidade_modulos INTEGER,
+
+        potencia_modulo REAL,
+
+        geracao_estimada REAL,
+
+        economia_estimada REAL,
+
+        status TEXT DEFAULT 'Novo',
+
+        origem TEXT DEFAULT 'Simulador site',
+
+        data TEXT,
+
+        observacoes TEXT,
+
+        cliente_id INTEGER,
+
+        proposta_id INTEGER,
+
+
+        FOREIGN KEY(cliente_id)
+        REFERENCES clientes(id),
+
+        FOREIGN KEY(proposta_id)
+        REFERENCES propostas(id)
+
+    )
+    """)
+
+
+    conn.commit()
+
+    conn.close()
+
+
+
+# ==========================================
+# COLUNAS DO DIMENSIONADOR (Fio B / Lei 14.300)
+# ==========================================
+
+_COLUNAS_DIMENSIONAMENTO = [
+    ("ano_conexao", "INTEGER"),
+    ("economia_bruta", "REAL"),
+    ("custo_fio_b", "REAL"),
+    ("economia_liquida", "REAL"),
+    ("margem_tecnica", "REAL"),
+    ("modalidade", "TEXT"),
+    ("quantidade_beneficiarias", "INTEGER"),
+    ("consumo_beneficiarias", "REAL"),
+    ("percentual_fio_b", "REAL"),
+    ("consumo_corrigido", "REAL"),
+    ("fabricante_modulo", "TEXT"),
+    ("modelo_modulo", "TEXT"),
+    ("fabricante_inversor", "TEXT"),
+    ("modelo_inversor", "TEXT"),
+    ("potencia_inversor", "REAL"),
+    ("fatura_arquivo", "TEXT"),
+    ("valor_conta_fatura", "REAL"),
+    ("consumo_total_projeto", "REAL"),
+]
+
+
+def garantir_colunas_dimensionamentos(conn=None, cursor=None):
+    """Cria colunas faltantes usadas em /dimensionador/salvar (seguro repetir)."""
+    fechar = False
+    if conn is None or cursor is None:
+        conn = conectar()
+        cursor = conn.cursor()
+        fechar = True
+    for col, tipo in _COLUNAS_DIMENSIONAMENTO:
+        try:
+            cursor.execute(
+                f"ALTER TABLE dimensionamentos_solares ADD COLUMN {col} {tipo}"
+            )
+            conn.commit()
+        except Exception:
+            pass
+    if fechar:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+
+# ==========================================
 # ATUALIZAÇÕES DO BANCO
 # ==========================================
 
@@ -338,6 +459,11 @@ def atualizar_banco():
     conn = conectar()
 
     cursor = conn.cursor()
+
+    try:
+        garantir_colunas_dimensionamentos(conn=conn, cursor=cursor)
+    except Exception:
+        pass
 
     
 
@@ -576,6 +702,268 @@ def atualizar_banco():
         pass
 
     # --------------------------------------
+    # Configurações padrão do simulador
+    # público de orçamento (/orcamento)
+    # --------------------------------------
+
+    try:
+
+        cursor.execute("""
+            ALTER TABLE empresa
+            ADD COLUMN tarifa_padrao REAL DEFAULT 0.85
+        """)
+
+        conn.commit()
+
+
+    except sqlite3.OperationalError:
+
+        pass
+
+
+    try:
+
+        cursor.execute("""
+            ALTER TABLE empresa
+            ADD COLUMN produtividade_padrao REAL DEFAULT 125
+        """)
+
+        conn.commit()
+
+
+    except sqlite3.OperationalError:
+
+        pass
+
+
+    try:
+
+        cursor.execute("""
+            ALTER TABLE empresa
+            ADD COLUMN potencia_modulo_padrao REAL DEFAULT 620
+        """)
+
+        conn.commit()
+
+
+    except sqlite3.OperationalError:
+
+        pass
+
+
+    try:
+
+        cursor.execute("""
+            ALTER TABLE empresa
+            ADD COLUMN margem_padrao REAL DEFAULT 10
+        """)
+
+        conn.commit()
+
+
+    except sqlite3.OperationalError:
+
+        pass
+
+
+    # --------------------------------------
+    # Novas colunas em leads (numero de
+    # modulos, modulo padrao usado e
+    # vinculo com a proposta gerada)
+    # --------------------------------------
+
+    try:
+
+        cursor.execute("""
+            ALTER TABLE leads
+            ADD COLUMN quantidade_modulos INTEGER
+        """)
+
+        conn.commit()
+
+
+    except sqlite3.OperationalError:
+
+        pass
+
+
+    try:
+
+        cursor.execute("""
+            ALTER TABLE leads
+            ADD COLUMN potencia_modulo REAL
+        """)
+
+        conn.commit()
+
+
+    except sqlite3.OperationalError:
+
+        pass
+
+
+    try:
+
+        cursor.execute("""
+            ALTER TABLE leads
+            ADD COLUMN proposta_id INTEGER
+        """)
+
+        conn.commit()
+
+
+    except sqlite3.OperationalError:
+
+        pass
+
+
+    # --------------------------------------
+    # Novas colunas em sistemas_solares
+    # (comparativo de conta antes/depois
+    # usado na proposta em PDF)
+    # --------------------------------------
+
+    try:
+
+        cursor.execute("""
+            ALTER TABLE sistemas_solares
+            ADD COLUMN valor_conta_atual REAL
+        """)
+
+        conn.commit()
+
+
+    except sqlite3.OperationalError:
+
+        pass
+
+
+    try:
+
+        cursor.execute("""
+            ALTER TABLE sistemas_solares
+            ADD COLUMN valor_conta_residual REAL
+        """)
+
+        conn.commit()
+
+
+    except sqlite3.OperationalError:
+
+        pass
+
+    # --------------------------------------
+    
+    # numero_endereco (bancos antigos só tinham "numero")
+    try:
+        cursor.execute("ALTER TABLE clientes ADD COLUMN numero_endereco TEXT")
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("""
+            UPDATE clientes
+            SET numero_endereco = numero
+            WHERE (numero_endereco IS NULL OR numero_endereco = '')
+              AND numero IS NOT NULL AND numero != ''
+        """)
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass
+
+    
+    # Fatura anexada ao dimensionamento
+    for col, tipo in [
+        ("fatura_arquivo", "TEXT"),
+        ("valor_conta_fatura", "REAL"),
+    ]:
+        try:
+            cursor.execute(f"ALTER TABLE dimensionamentos_solares ADD COLUMN {col} {tipo}")
+            conn.commit()
+        except sqlite3.OperationalError:
+            pass
+
+    try:
+        cursor.execute("ALTER TABLE clientes ADD COLUMN fatura_arquivo TEXT")
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass
+
+
+    
+    # Asaas (pagamento)
+    for col, tipo in [
+        ("asaas_api_key", "TEXT"),
+        ("asaas_webhook_token", "TEXT"),
+        ("asaas_ambiente", "TEXT DEFAULT 'sandbox'"),
+    ]:
+        try:
+            cursor.execute(f"ALTER TABLE empresa ADD COLUMN {col} {tipo}")
+            conn.commit()
+        except sqlite3.OperationalError:
+            pass
+
+    for col, tipo in [
+        ("asaas_payment_id", "TEXT"),
+        ("asaas_invoice_url", "TEXT"),
+        ("asaas_status", "TEXT"),
+        ("pagamento_status", "TEXT"),
+        ("pago_em", "TEXT"),
+    ]:
+        try:
+            cursor.execute(f"ALTER TABLE propostas ADD COLUMN {col} {tipo}")
+            conn.commit()
+        except sqlite3.OperationalError:
+            pass
+
+    try:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS asaas_webhook_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_id TEXT UNIQUE,
+                event_type TEXT,
+                payment_id TEXT,
+                payload TEXT,
+                processado_em TEXT,
+                resultado TEXT
+            )
+        """)
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass
+
+
+    # Preço por kWp (precificação automática)
+    # --------------------------------------
+
+    try:
+        cursor.execute("""
+            ALTER TABLE empresa
+            ADD COLUMN preco_por_kwp REAL DEFAULT 4500
+        """)
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass
+
+    # --------------------------------------
+    # Assinatura digital da proposta
+    # --------------------------------------
+
+    for col in (
+        "token_assinatura TEXT",
+        "assinatura_nome TEXT",
+        "assinatura_cpf TEXT",
+        "assinatura_data TEXT",
+        "assinatura_ip TEXT",
+    ):
+        try:
+            cursor.execute(f"ALTER TABLE propostas ADD COLUMN {col}")
+            conn.commit()
+        except sqlite3.OperationalError:
+            pass
+
+    # --------------------------------------
     # Ajusta itens_proposta para permitir
     # itens sem serviço vinculado
     # --------------------------------------
@@ -652,8 +1040,117 @@ def atualizar_banco():
 
 
 # ==========================================
+# ORDENS DE SERVIÇO (obras / projetos)
+# ==========================================
+
+def criar_tabela_ordens_servico():
+
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS ordens_servico (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        proposta_id INTEGER NOT NULL,
+
+        cliente_id INTEGER NOT NULL,
+
+        status TEXT DEFAULT 'Aguardando início',
+
+        data_criacao TEXT,
+
+        data_inicio TEXT,
+
+        data_prevista TEXT,
+
+        data_conclusao TEXT,
+
+        valor_fechado REAL,
+
+        potencia_kwp REAL,
+
+        quantidade_modulos INTEGER,
+
+        descricao TEXT,
+
+        observacoes TEXT,
+
+        responsavel TEXT,
+
+        FOREIGN KEY(proposta_id) REFERENCES propostas(id),
+
+        FOREIGN KEY(cliente_id) REFERENCES clientes(id)
+
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+# ==========================================
 # INICIALIZAÇÃO DO BANCO
 # ==========================================
+
+
+
+# ==========================================
+# USUÁRIOS (multi-empresa / login)
+# ==========================================
+
+def criar_tabela_usuarios():
+
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        senha TEXT NOT NULL,
+        empresa_id INTEGER DEFAULT 1,
+        perfil TEXT DEFAULT 'admin',
+        ativo INTEGER DEFAULT 1,
+        FOREIGN KEY(empresa_id) REFERENCES empresa(id)
+    )
+    """)
+
+    # usuário padrão: admin@gmtech / admin123
+    cursor.execute("SELECT COUNT(*) FROM usuarios")
+    if cursor.fetchone()[0] == 0:
+        import hashlib
+        senha = hashlib.sha256("admin123".encode()).hexdigest()
+        cursor.execute("""
+            INSERT INTO usuarios (nome, email, senha, empresa_id, perfil)
+            VALUES (?, ?, ?, 1, 'admin')
+        """, ("Administrador", "admin@gmtech.local", senha))
+
+    conn.commit()
+    conn.close()
+
+
+def garantir_empresa_id_nas_tabelas():
+    """Adiciona empresa_id nas tabelas principais (multi-tenant leve)."""
+    conn = conectar()
+    cursor = conn.cursor()
+    tabelas = [
+        "clientes",
+        "propostas",
+        "servicos",
+        "leads",
+        "dimensionamentos_solares",
+        "ordens_servico",
+    ]
+    for tabela in tabelas:
+        try:
+            cursor.execute(f"ALTER TABLE {tabela} ADD COLUMN empresa_id INTEGER DEFAULT 1")
+            conn.commit()
+        except Exception:
+            pass
+    conn.close()
 
 def iniciar_banco():
 
@@ -669,4 +1166,13 @@ def iniciar_banco():
 
     criar_tabela_dimensionamentos_solares()
 
-    atualizar_banco()    
+    criar_tabela_leads()
+
+    criar_tabela_ordens_servico()
+
+    criar_tabela_usuarios()
+
+    garantir_empresa_id_nas_tabelas()
+
+    atualizar_banco()
+    

@@ -1,136 +1,133 @@
 {% extends "base.html" %}
 
-
 {% block title %}
 Dashboard - GMTECH Manager
 {% endblock %}
 
-
 {% block content %}
 
+<h3 class="mb-1">Dashboard</h3>
+<p class="text-muted mb-4">Bem-vindo ao GMTECH Manager — visão geral do pipeline comercial e obras.</p>
 
+<div class="row g-3 mb-4">
 
-<h2>
-    Dashboard
-</h2>
-
-<p class="text-muted">
-    Bem-vindo ao GMTECH Manager
-</p>
-
-
-
-<div class="row g-4">
-
-
-    <div class="col-md-4">
-
-        <div class="card card-dashboard card-clientes p-4">
-
-            <h5>
-    <i class="bi bi-people-fill"></i>
-    Clientes
-</h5>
-
-
-<h2 class="numero-dashboard">
-
-    {{ total_clientes }}
-
-</h2>
-
-
-<p class="text-muted">
-
-Clientes cadastrados
-
-</p>
-
-
-<a href="/clientes" class="btn btn-gmtech">
-
-Acessar
-
-</a>
-
+    <div class="col-md-3 col-6">
+        <div class="card card-dashboard card-clientes h-100">
+            <div class="card-body">
+                <div class="text-muted small">Clientes</div>
+                <div class="numero-dashboard">{{ total_clientes }}</div>
+                <a href="/clientes" class="btn btn-sm btn-gmtech mt-2">Acessar</a>
+            </div>
         </div>
-
     </div>
 
-
-
-    <div class="col-md-4">
-
-        <div class="card card-dashboard card-servicos p-4">
-
-            <h5>
-    <i class="bi bi-tools"></i>
-    Serviços
-</h5>
-
-
-<h2 class="numero-dashboard">
-
-{{ total_servicos }}
-
-</h2>
-
-
-<p class="text-muted">
-
-Serviços cadastrados
-
-</p>
-
-
-<a href="/servicos" class="btn btn-servico">
-
-Acessar
-
-</a>
-
+    <div class="col-md-3 col-6">
+        <div class="card card-dashboard card-leads h-100">
+            <div class="card-body">
+                <div class="text-muted small">Leads novos</div>
+                <div class="numero-dashboard">{{ leads_novos }}</div>
+                <small class="text-muted">{{ total_leads }} no total</small><br>
+                <a href="/leads" class="btn btn-sm btn-lead mt-2">Acessar</a>
+            </div>
         </div>
-
     </div>
 
-
-
-    <div class="col-md-4">
-
-        <div class="card card-dashboard card-propostas p-4">
-
-            <h5>
-    <i class="bi bi-file-earmark-text-fill"></i>
-    Propostas
-</h5>
-
-
-<h2 class="numero-dashboard">
-
-{{ total_propostas }}
-
-</h2>
-
-
-<p class="text-muted">
-
-Propostas criadas
-
-</p>
-
-
-<a href="/propostas/nova" class="btn btn-proposta">
-
-Acessar
-
-</a>
-
+    <div class="col-md-3 col-6">
+        <div class="card card-dashboard card-propostas h-100">
+            <div class="card-body">
+                <div class="text-muted small">Propostas abertas</div>
+                <div class="numero-dashboard">{{ propostas_abertas }}</div>
+                <small class="text-muted">{{ propostas_aceitas }} aceitas</small><br>
+                <a href="/propostas" class="btn btn-sm btn-proposta mt-2">Acessar</a>
+            </div>
         </div>
-
     </div>
 
+    <div class="col-md-3 col-6">
+        <div class="card card-dashboard card-servicos h-100">
+            <div class="card-body">
+                <div class="text-muted small">Obras ativas</div>
+                <div class="numero-dashboard">{{ ordens_ativas }}</div>
+                <small class="text-muted">{{ ordens_concluidas }} concluídas</small><br>
+                <a href="/ordens-servico" class="btn btn-sm btn-servico mt-2">Ordens de Serviço</a>
+            </div>
+        </div>
+    </div>
 
 </div>
 
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card card-dashboard">
+            <div class="card-body">
+                <h5 class="mb-3"><i class="bi bi-funnel"></i> Pipeline</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Leads (total)</span>
+                        <strong>{{ total_leads }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Propostas criadas</span>
+                        <strong>{{ total_propostas }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Valor em propostas</span>
+                        <strong>{{ (valor_total_propostas or 0)|moeda_rs }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Ordens de serviço</span>
+                        <strong>{{ total_ordens }}</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card card-dashboard">
+            <div class="card-body">
+                <h5 class="mb-3"><i class="bi bi-clipboard-check"></i> Obras por status</h5>
+                {% if os_por_status %}
+                <ul class="list-group list-group-flush">
+                    {% for status, qtd in os_por_status.items() %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ status }}</span>
+                        <strong>{{ qtd }}</strong>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted mb-0">Nenhuma obra registrada ainda.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-dashboard">
+    <div class="card-body">
+        <h5 class="mb-3">Atalhos do fluxo</h5>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="/clientes/novo" class="btn btn-gmtech">
+                <i class="bi bi-person-plus"></i> Novo cliente
+            </a>
+            <a href="/dimensionador" class="btn btn-gmtech">
+                <i class="bi bi-sun"></i> Dimensionar
+            </a>
+            <a href="/propostas/nova" class="btn btn-gmtech">
+                <i class="bi bi-file-earmark-plus"></i> Nova proposta
+            </a>
+            <a href="/ordens-servico" class="btn btn-gmtech">
+                <i class="bi bi-clipboard-check"></i> Ordens de serviço
+            </a>
+            <a href="/orcamento" class="btn btn-outline-secondary" target="_blank">
+                <i class="bi bi-link-45deg"></i> Simulador público
+            </a>
+        </div>
+        <p class="text-muted small mt-3 mb-0">
+            Fluxo sugerido: <strong>Cliente → Dimensionador → Proposta → Aceite → Ordem de Serviço → Concluído</strong>
+        </p>
+    </div>
+</div>
 
 {% endblock %}

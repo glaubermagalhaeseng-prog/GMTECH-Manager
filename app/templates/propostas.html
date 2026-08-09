@@ -1,179 +1,78 @@
 {% extends "base.html" %}
 
-
 {% block title %}
 Propostas - GMTECH Manager
 {% endblock %}
 
-
-
 {% block content %}
 
-
 <div class="d-flex justify-content-between align-items-center mb-4">
-
     <h2>
         <i class="bi bi-file-earmark-text-fill"></i>
         Propostas
     </h2>
-
-
     <a href="/propostas/nova" class="btn btn-gmtech">
-
         <i class="bi bi-plus-circle"></i>
-
         Nova Proposta
-
     </a>
-
 </div>
-
-
 
 <div class="card card-dashboard">
-
-
-<div class="card-body">
-
-
-<table class="table table-hover">
-
-
-<thead>
-
-<tr>
-
-<th>Nº</th>
-
-<th>Cliente</th>
-
-<th>Data</th>
-
-<th>Valor</th>
-
-<th>Status</th>
-
-<th>Ações</th>
-
-</tr>
-
-</thead>
-
-
-
-<tbody>
-
-
-{% for proposta in propostas %}
-
-
-<tr>
-
-
-<td>
-
-PROP-{{ "%04d"|format(proposta.id) }}
-
-</td>
-
-
-<td>
-
-{{ proposta.cliente_nome }}
-
-</td>
-
-
-<td>
-
-{{ proposta.data }}
-
-</td>
-
-
-<td>
-
-R$ {{ "%.2f"|format(proposta.valor_total or 0) }}
-
-</td>
-
-
-<td>
-
-<span class="badge bg-success">
-
-{{ proposta.status }}
-
-</span>
-
-</td>
-
-
-<td>
-
-
-<div class="btn-group">
-
-    <a href="/propostas/{{ proposta.id }}" class="btn btn-sm btn-gmtech">
-        <i class="bi bi-eye"></i>
-    </a>
-
-
-    <a href="#" class="btn btn-sm btn-servico">
-        <i class="bi bi-pencil"></i>
-    </a>
-
-
+    <div class="card-body">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Nº</th>
+                    <th>Cliente</th>
+                    <th>Data</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proposta in propostas %}
+                <tr>
+                    <td><strong>PROP-{{ "%04d"|format(proposta.id) }}</strong></td>
+                    <td>{{ proposta.cliente_nome }}</td>
+                    <td>{{ proposta.data }}</td>
+                    <td>{{ (proposta.valor_total or 0)|moeda_rs }}</td>
+                    <td>
+                        {% if proposta.status == "Aceita" %}
+                        <span class="badge bg-success">{{ proposta.status }}</span>
+                        {% elif proposta.status == "Enviada" %}
+                        <span class="badge" style="background:#073B4C;">{{ proposta.status }}</span>
+                        {% elif proposta.status == "Recusada" or proposta.status == "Expirada" %}
+                        <span class="badge bg-secondary">{{ proposta.status }}</span>
+                        {% else %}
+                        <span class="badge" style="background:#F7941D;">{{ proposta.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/propostas/{{ proposta.id }}" class="btn btn-sm btn-gmtech" title="Visualizar">
+                            <i class="bi bi-eye-fill"></i> Visualizar
+                        </a>
+                        <a href="/propostas/{{ proposta.id }}" class="btn btn-sm btn-editar-gmtech" title="Editar">
+                            <i class="bi bi-pencil-fill"></i> Editar
+                        </a>
+                        <a href="/propostas/{{ proposta.id }}/excluir"
+                           class="btn btn-sm btn-excluir-gmtech"
+                           title="Excluir"
+                           onclick="return confirm('Excluir esta proposta?')">
+                            <i class="bi bi-trash-fill"></i> Excluir
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        Nenhuma proposta cadastrada
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-
-<i class="bi bi-eye"></i>
-
-</a>
-
-
-
-<a href="#" class="btn btn-sm btn-servico">
-
-<i class="bi bi-pencil"></i>
-
-</a>
-
-
-
-</td>
-
-
-</tr>
-
-
-{% else %}
-
-
-<tr>
-
-<td colspan="6" class="text-center text-muted">
-
-Nenhuma proposta cadastrada
-
-</td>
-
-</tr>
-
-
-{% endfor %}
-
-
-</tbody>
-
-
-</table>
-
-
-</div>
-
-
-</div>
-
-
 
 {% endblock %}

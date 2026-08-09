@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}
+OS #{{ ordem.id }} - GMTECH Manager
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="mb-1">
+            <i class="bi bi-clipboard-check"></i>
+            Ordem de Serviço OS-{{ "%04d"|format(ordem.id) }}
+        </h3>
+        <p class="text-muted mb-0">Proposta #{{ ordem.proposta_id }} · Criada em {{ ordem.data_criacao or "—" }}</p>
+    </div>
+    <a href="/ordens-servico" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card card-dashboard h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Cliente</h6>
+                <h5>{{ ordem.cliente_nome }}</h5>
+                <p class="mb-0 small">
+                    {% if ordem.cliente_telefone %}{{ ordem.cliente_telefone }}<br>{% endif %}
+                    {% if ordem.cliente_email %}{{ ordem.cliente_email }}<br>{% endif %}
+                    {% if ordem.cliente_cidade %}{{ ordem.cliente_cidade }}{% if ordem.cliente_uf %} - {{ ordem.cliente_uf }}{% endif %}{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-dashboard h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Sistema</h6>
+                <h5>{% if ordem.potencia_kwp %}{{ ordem.potencia_kwp }} kWp{% else %}—{% endif %}</h5>
+                <p class="mb-0 small">
+                    {% if ordem.quantidade_modulos %}{{ ordem.quantidade_modulos }} módulos<br>{% endif %}
+                    {% if sistema %}
+                    Geração: {{ sistema.geracao_mensal }} kWh/mês<br>
+                    Economia: {{ (sistema.economia_mensal or 0)|moeda_rs }}/mês
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-dashboard h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Valor fechado</h6>
+                <h5>{{ (ordem.valor_fechado or 0)|moeda_rs }}</h5>
+                <p class="mb-0 small">
+                    Status atual:
+                    <strong>{{ ordem.status }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-dashboard mb-4">
+    <div class="card-body">
+        <h5 class="mb-3"><i class="bi bi-flag-fill"></i> Atualizar status e datas</h5>
+        <form method="post" action="/ordens-servico/{{ ordem.id }}/status">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        {% for s in status_lista %}
+                        <option value="{{ s }}" {% if ordem.status == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Responsável</label>
+                    <input type="text" name="responsavel" class="form-control"
+                           value="{{ ordem.responsavel or '' }}" placeholder="Nome do técnico / equipe">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Data início</label>
+                    <input type="text" name="data_inicio" class="form-control"
+                           value="{{ ordem.data_inicio or '' }}" placeholder="dd/mm/aaaa">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Data prevista</label>
+                    <input type="text" name="data_prevista" class="form-control"
+                           value="{{ ordem.data_prevista or '' }}" placeholder="dd/mm/aaaa">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Data conclusão</label>
+                    <input type="text" name="data_conclusao" class="form-control"
+                           value="{{ ordem.data_conclusao or '' }}" placeholder="dd/mm/aaaa">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Observações da obra</label>
+                    <textarea name="observacoes" class="form-control" rows="3">{{ ordem.observacoes or '' }}</textarea>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-gmtech">
+                        <i class="bi bi-check-lg"></i> Salvar
+                    </button>
+                    <a href="/propostas/{{ ordem.proposta_id }}" class="btn btn-outline-secondary">
+                        Ver proposta original
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card card-dashboard mb-4">
+    <div class="card-body">
+        <h5 class="mb-3">Descrição do serviço</h5>
+        <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit;">{{ ordem.descricao or "—" }}</pre>
+    </div>
+</div>
+
+{% if itens %}
+<div class="card card-dashboard">
+    <div class="card-body">
+        <h5 class="mb-3">Itens da proposta</h5>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th>Qtd</th>
+                        <th>Valor unit.</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in itens %}
+                    <tr>
+                        <td>{{ item.descricao }}</td>
+                        <td>{{ item.quantidade }}</td>
+                        <td>{{ (item.valor_unitario or 0)|moeda_rs }}</td>
+                        <td>{{ (item.quantidade or 0) * (item.valor_unitario or 0)|moeda_rs }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

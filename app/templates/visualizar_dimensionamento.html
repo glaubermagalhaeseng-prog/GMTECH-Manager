@@ -74,7 +74,7 @@ Sistema Fotovoltaico
 <p>
 Potência necessária:
 
-{{ "%.2f"|format(dimensionamento.potencia_calculada_kwp) }}
+{{ dimensionamento.potencia_calculada_kwp|numero_br }}
 
 kWp
 
@@ -109,7 +109,7 @@ Wp
 <p>
 Potência instalada:
 
-{{ "%.2f"|format(dimensionamento.potencia_final_kwp) }}
+{{ dimensionamento.potencia_final_kwp|numero_br }}
 
 kWp
 
@@ -192,7 +192,7 @@ Tarifa:
 
 R$
 
-{{ "%.2f"|format(dimensionamento.tarifa_energia) }}
+{{ dimensionamento.tarifa_energia|moeda }}
 
 </p>
 
@@ -205,7 +205,7 @@ Economia estimada:
 
 R$
 
-{{ "%.2f"|format(dimensionamento.economia_estimada) }}
+{{ dimensionamento.economia_estimada|moeda_rs }}
 
 </p>
 

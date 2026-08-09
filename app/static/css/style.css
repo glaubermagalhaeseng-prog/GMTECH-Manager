@@ -49,7 +49,10 @@ body {
 
 .logo-gmtech {
 
-    width:170px;
+    width: 170px;
+    height: auto;
+    max-height: 70px;
+    object-fit: contain;
 
 }
 
@@ -213,6 +216,128 @@ body {
 }
 
 
+.card-leads {
+
+    border-left:8px solid #073B4C;
+
+}
+
+
+.btn-lead {
+
+    background:#073B4C !important;
+
+    color:white !important;
+
+    border:none;
+
+}
+
+
+.btn-lead:hover {
+
+    background:#F7941D !important;
+
+    color:white !important;
+
+}
+
+
+/* ==========================
+   CABEÇALHO DA PROPOSTA
+========================== */
+
+.proposta-hero {
+
+    background: linear-gradient(135deg, #073B4C 0%, #0a5068 100%);
+
+    color: white;
+
+    border-radius: 16px;
+
+    padding: 30px 34px;
+
+}
+
+
+.proposta-hero-label {
+
+    text-transform: uppercase;
+
+    letter-spacing: .5px;
+
+    font-size: .78rem;
+
+    opacity: .75;
+
+}
+
+
+.proposta-hero h2 {
+
+    font-weight: bold;
+
+    margin-top: 4px;
+
+}
+
+
+.badge-status {
+
+    background: #F7941D;
+
+    color: white;
+
+    padding: 5px 14px;
+
+    border-radius: 20px;
+
+    font-size: .78rem;
+
+    font-weight: bold;
+
+    text-transform: uppercase;
+
+}
+
+
+.proposta-stat {
+
+    background: rgba(255,255,255,.08);
+
+    border: 1px solid rgba(255,255,255,.15);
+
+    border-radius: 12px;
+
+    padding: 14px;
+
+    text-align: center;
+
+}
+
+
+.proposta-stat-valor {
+
+    font-size: 1.25rem;
+
+    font-weight: bold;
+
+    color: white;
+
+}
+
+
+.proposta-stat-rotulo {
+
+    font-size: .75rem;
+
+    opacity: .75;
+
+    margin-top: 2px;
+
+}
+
+
 
 /* BOTÕES DASHBOARD */
 
@@ -305,4 +430,89 @@ body {
 }
 
 
+}
+
+/* ==========================
+   KANBAN ORDENS DE SERVIÇO
+========================== */
+
+.kanban-board {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    align-items: flex-start;
+}
+
+.kanban-col {
+    min-width: 240px;
+    max-width: 280px;
+    flex: 1;
+    background: #eef1f5;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.kanban-col-header {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #073B4C;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 6px;
+}
+
+.kanban-col-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 80px;
+}
+
+.kanban-card {
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    border-left: 4px solid #F7941D;
+    transition: .2s;
+    display: block;
+}
+
+.kanban-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0,0,0,.1);
+}
+
+.btn-whatsapp {
+    background: #25D366 !important;
+    color: white !important;
+    border: none !important;
+}
+
+.btn-whatsapp:hover {
+    background: #1ebe57 !important;
+    color: white !important;
+}
+
+
+/* ==========================
+   VALIDAÇÃO DE FORMULÁRIOS
+========================== */
+
+.form-control:invalid:not(:placeholder-shown),
+.form-select:invalid {
+    border-color: #dc3545;
+}
+
+.campo-obrigatorio::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.alert-validacao {
+    border-left: 4px solid #dc3545;
 }

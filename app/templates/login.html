@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GMTECH Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #073B4C 0%, #0a5068 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: white;
+            border-radius: 16px;
+            padding: 36px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 12px 40px rgba(0,0,0,.25);
+        }
+        .login-card img {
+            max-width: 160px;
+            display: block;
+            margin: 0 auto 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <img src="/static/img/logo_nova.png" alt="GMTECH">
+        <h4 class="text-center mb-1" style="color:#073B4C;">GMTECH Manager</h4>
+        <p class="text-center text-muted small mb-4">Acesse sua conta</p>
+
+        {% if erro %}
+        <div class="alert alert-danger">{{ erro }}</div>
+        {% endif %}
+
+        <form method="post" action="/login">
+            <div class="mb-3">
+                <label class="form-label">E-mail</label>
+                <input type="email" name="email" class="form-control" required
+                       value="admin@gmtech.local" placeholder="seu@email.com">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Senha</label>
+                <input type="password" name="senha" class="form-control" required
+                       placeholder="••••••••">
+            </div>
+            {% if empresas and empresas|length > 1 %}
+            <div class="mb-3">
+                <label class="form-label">Empresa</label>
+                <select name="empresa_id" class="form-select">
+                    {% for e in empresas %}
+                    <option value="{{ e.id }}">
+                        {{ e.nome_fantasia or e.razao_social or ('Empresa #' ~ e.id) }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% else %}
+            <input type="hidden" name="empresa_id" value="1">
+            {% endif %}
+            <button type="submit" class="btn btn-gmtech w-100">
+                <i class="bi bi-box-arrow-in-right"></i> Entrar
+            </button>
+        </form>
+        <p class="text-muted small text-center mt-3 mb-0">
+            Padrão: <code>admin@gmtech.local</code> / <code>admin123</code>
+        </p>
+    </div>
+</body>
+</html>

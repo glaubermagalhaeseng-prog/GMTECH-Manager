@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Lead #{{ lead.id }} - GMTECH Manager
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2>
+        <i class="bi bi-lightning-charge-fill"></i>
+        Lead #{{ lead.id }} - {{ lead.nome }}
+    </h2>
+
+    <a href="/leads" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i>
+        Voltar
+    </a>
+
+</div>
+
+
+<div class="card card-dashboard p-4 mb-4">
+
+    <h5>Dados do contato</h5>
+
+    <p><strong>Nome:</strong> {{ lead.nome }}</p>
+    <p><strong>WhatsApp:</strong> {{ lead.telefone }}</p>
+
+    <p class="mt-2">
+        <a class="btn btn-whatsapp btn-sm"
+           target="_blank"
+           href="https://wa.me/55{{ lead.telefone|replace(' ','')|replace('-','')|replace('(','')|replace(')','') }}?text=Olá {{ lead.nome.split(' ')[0] }}! Somos da GMTECH. Recebemos sua simulação de energia solar e gostaríamos de falar com você.">
+            <i class="bi bi-whatsapp"></i> Falar no WhatsApp
+        </a>
+    </p>
+    <p><strong>Cidade/UF:</strong> {{ lead.cidade }}{% if lead.uf %}/{{ lead.uf }}{% endif %}</p>
+    <p><strong>Recebido em:</strong> {{ lead.data }}</p>
+    <p><strong>Origem:</strong> {{ lead.origem }}</p>
+
+</div>
+
+
+<div class="card card-dashboard p-4 mb-4">
+
+    <h5>Estimativa calculada</h5>
+
+    <div class="row text-center">
+
+        <div class="col-md-3">
+            <p class="text-muted mb-0">Conta informada</p>
+            <h4>{{ (lead.valor_conta or 0)|moeda_rs }}</h4>
+        </div>
+
+        <div class="col-md-3">
+            <p class="text-muted mb-0">Consumo estimado</p>
+            <h4>{{ lead.consumo_estimado|int }} kWh</h4>
+        </div>
+
+        <div class="col-md-3">
+            <p class="text-muted mb-0">Sistema estimado</p>
+            <h4>{{ lead.potencia_estimada_kwp }} kWp</h4>
+        </div>
+
+        <div class="col-md-3">
+            <p class="text-muted mb-0">Economia estimada</p>
+            <h4>{{ (lead.economia_estimada or 0)|moeda_rs }}/mês</h4>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="card card-dashboard p-4 mb-4">
+
+    <h5>Status do lead</h5>
+
+    <form method="post" action="/leads/{{lead.id}}/status" class="d-flex gap-2">
+
+        <select name="status" class="form-select" style="max-width:250px">
+
+            <option value="Novo" {% if lead.status == "Novo" %}selected{% endif %}>Novo</option>
+            <option value="Em contato" {% if lead.status == "Em contato" %}selected{% endif %}>Em contato</option>
+            <option value="Convertido" {% if lead.status == "Convertido" %}selected{% endif %}>Convertido</option>
+            <option value="Perdido" {% if lead.status == "Perdido" %}selected{% endif %}>Perdido</option>
+
+        </select>
+
+        <button type="submit" class="btn btn-gmtech">
+            Atualizar status
+        </button>
+
+    </form>
+
+</div>
+
+
+<div class="card card-dashboard p-4">
+
+    <h5>Converter em cliente</h5>
+
+    <p class="text-muted">
+        Ao converter, um cadastro de cliente é criado automaticamente com
+        os dados desse lead, para você já criar uma proposta ou dimensionamento.
+    </p>
+
+    {% if lead.cliente_id %}
+
+    <a href="{{ '/propostas/' + lead.proposta_id|string if lead.proposta_id else '/clientes/editar/' + lead.cliente_id|string }}" class="btn btn-success">
+        <i class="bi bi-check-circle-fill"></i>
+        {% if lead.proposta_id %}Já convertido - ver proposta{% else %}Já convertido - ver cliente{% endif %}
+    </a>
+
+    {% else %}
+
+    <a href="/leads/{{lead.id}}/converter" class="btn btn-lead">
+        <i class="bi bi-person-plus-fill"></i>
+        Converter em cliente
+    </a>
+
+    {% endif %}
+
+</div>
+
+
+{% endblock %}

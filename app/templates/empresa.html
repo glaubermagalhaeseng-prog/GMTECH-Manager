@@ -7,6 +7,14 @@ Empresa
 
 {% block content %}
 
+{% if request.query_params.get('erro') %}
+<div class="alert alert-danger alert-validacao mb-3">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    {{ request.query_params.get('erro') }}
+</div>
+{% endif %}
+
+
 
 <h2>
     Dados da Empresa
@@ -38,7 +46,7 @@ type="text"
 name="razao_social"
 class="form-control"
 value="{{ empresa.razao_social if empresa else '' }}"
->
+ required>
 
 </div>
 
@@ -55,7 +63,7 @@ type="text"
 name="nome_fantasia"
 class="form-control"
 value="{{ empresa.nome_fantasia if empresa else '' }}"
->
+ required>
 
 </div>
 
@@ -123,7 +131,7 @@ type="text"
 name="telefone"
 class="form-control"
 value="{{ empresa.telefone if empresa else '' }}"
->
+ required>
 
 </div>
 
@@ -140,7 +148,7 @@ type="email"
 name="email"
 class="form-control"
 value="{{ empresa.email if empresa else '' }}"
->
+ required>
 
 </div>
 
@@ -174,7 +182,7 @@ type="text"
 name="cidade"
 class="form-control"
 value="{{ empresa.cidade if empresa else '' }}"
->
+ required>
 
 </div>
 
@@ -191,11 +199,113 @@ type="text"
 name="uf"
 class="form-control"
 value="{{ empresa.uf if empresa else '' }}"
+ required>
+
+</div>
+
+
+</div>
+
+
+<hr class="my-4">
+
+<h5>
+Parâmetros do Simulador Público (/orcamento)
+</h5>
+
+<p class="text-muted">
+Usados para calcular a estimativa mostrada ao cliente que preenche
+o formulário público, antes de qualquer análise do dimensionador.
+</p>
+
+<div class="row">
+
+
+<div class="col-md-3 mb-3">
+
+<label class="form-label">
+Tarifa padrão (R$/kWh)
+</label>
+
+<input
+type="number" step="0.01"
+name="tarifa_padrao"
+class="form-control"
+value="{{ empresa.tarifa_padrao if empresa and empresa.tarifa_padrao else 0.85 }}"
 >
 
 </div>
 
 
+<div class="col-md-3 mb-3">
+
+<label class="form-label">
+Produtividade padrão (kWh/kWp)
+</label>
+
+<input
+type="number" step="0.01"
+name="produtividade_padrao"
+class="form-control"
+value="{{ empresa.produtividade_padrao if empresa and empresa.produtividade_padrao else 125 }}"
+>
+
+</div>
+
+
+<div class="col-md-3 mb-3">
+
+<label class="form-label">
+Potência do módulo (Wp)
+</label>
+
+<input
+type="number"
+name="potencia_modulo_padrao"
+class="form-control"
+value="{{ empresa.potencia_modulo_padrao if empresa and empresa.potencia_modulo_padrao else 620 }}"
+>
+
+</div>
+
+
+<div class="col-md-3 mb-3">
+
+<label class="form-label">
+Margem técnica padrão (%)
+</label>
+
+<input
+type="number" step="0.01"
+name="margem_padrao"
+class="form-control"
+value="{{ empresa.margem_padrao if empresa and empresa.margem_padrao else 10 }}"
+>
+
+</div>
+
+
+</div>
+
+<hr class="my-4">
+
+<h5>Precificação de propostas</h5>
+<p class="text-muted">
+Usado para calcular automaticamente o valor da proposta ao gerar a partir do dimensionador.
+Você pode ajustar o valor depois na proposta.
+</p>
+
+<div class="row">
+<div class="col-md-4 mb-3">
+<label class="form-label">Preço por kWp (R$)</label>
+<input
+type="number" step="0.01"
+name="preco_por_kwp"
+class="form-control"
+value="{{ empresa.preco_por_kwp if empresa and empresa.preco_por_kwp else 4500 }}"
+>
+<small class="text-muted">Ex.: 4.500 = R$ 4.500 por kWp instalado</small>
+</div>
 </div>
 
 
@@ -205,6 +315,39 @@ Salvar Dados
 
 </button>
 
+
+
+<div class="card card-dashboard mb-4">
+  <div class="card-body">
+    <h5 class="mb-3">Pagamentos — Asaas</h5>
+    <p class="text-muted small">
+      API Key do painel Asaas (sandbox ou produção).
+      Webhook URL: <code>/webhooks/asaas</code> (domínio público HTTPS).
+      Token opcional deve ser o mesmo configurado no Asaas (header <code>asaas-access-token</code>).
+    </p>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">API Key Asaas</label>
+        <input type="password" name="asaas_api_key" class="form-control"
+               value="{{ empresa.asaas_api_key if empresa and empresa.asaas_api_key else '' }}"
+               placeholder="$aact_...">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Token do Webhook</label>
+        <input type="text" name="asaas_webhook_token" class="form-control"
+               value="{{ empresa.asaas_webhook_token if empresa and empresa.asaas_webhook_token else '' }}"
+               placeholder="opcional">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Ambiente</label>
+        <select name="asaas_ambiente" class="form-select">
+          <option value="sandbox" {% if not empresa or not empresa.asaas_ambiente or empresa.asaas_ambiente == 'sandbox' %}selected{% endif %}>Sandbox</option>
+          <option value="production" {% if empresa and empresa.asaas_ambiente == 'production' %}selected{% endif %}>Produção</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
 
 </form>
 

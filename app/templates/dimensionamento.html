@@ -156,7 +156,7 @@ Dimensionamento Solar
                 <p>
                     <strong>Potência instalada:</strong><br>
 
-                    {{ "%.2f"|format(dimensionamento.potencia_final_kwp) }} kWp
+                    {{ dimensionamento.potencia_final_kwp|numero_br }} kWp
 
                 </p>
 
@@ -292,7 +292,7 @@ Dimensionamento Solar
                         </strong>
 
                         <h3>
-                            R$ {{ "%.2f"|format(dimensionamento.economia_bruta) }}
+                            {{ dimensionamento.economia_bruta|moeda_rs }}
                         </h3>
 
                     </div>
@@ -306,7 +306,7 @@ Dimensionamento Solar
                         </strong>
 
                         <h3>
-                            R$ {{ "%.2f"|format(dimensionamento.custo_fio_b) }}
+                            {{ dimensionamento.custo_fio_b|moeda_rs }}
                         </h3>
 
                     </div>
@@ -320,7 +320,7 @@ Dimensionamento Solar
                         </strong>
 
                         <h3>
-                            R$ {{ "%.2f"|format(dimensionamento.economia_liquida) }}
+                            {{ dimensionamento.economia_liquida|moeda_rs }}
                         </h3>
 
                     </div>

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Propostas - GMTECH Manager{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-file-earmark-text-fill"></i> Propostas</h2>
+</div>
+
+<div class="card card-dashboard">
+    <div class="card-body">
+
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Cliente</th>
+                    <th>Sistema</th>
+                    <th>Valor</th>
+                    <th>Validade</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set cores = {
+                    'Rascunho': 'secondary',
+                    'Enviada': 'info',
+                    'Aceita': 'success',
+                    'Recusada': 'danger',
+                    'Expirada': 'warning'
+                } %}
+
+                {% for p in propostas %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td><strong>{{ p.cliente_nome }}</strong></td>
+                    <td>{{ "%.2f"|format(p.potencia_kwp) }} kWp · {{ p.quantidade_modulos }} módulos</td>
+                    <td>R$ {{ "%.2f"|format(p.valor) }}</td>
+                    <td>{{ p.validade }}</td>
+                    <td>
+                        <span class="badge bg-{{ cores.get(p.status, 'secondary') }}">
+                            {{ p.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="/propostas/{{ p.id }}" class="btn btn-sm btn-outline-primary" title="Visualizar">
+                            <i class="bi bi-eye"></i>
+                        </a>
+
+                        {% if p.status == 'Rascunho' %}
+                        <a href="/propostas/{{ p.id }}/status/Enviada" class="btn btn-sm btn-outline-info" title="Marcar como enviada">
+                            <i class="bi bi-send"></i>
+                        </a>
+                        {% endif %}
+
+                        {% if p.status == 'Enviada' %}
+                        <a href="/propostas/{{ p.id }}/status/Aceita" class="btn btn-sm btn-outline-success" title="Cliente aceitou">
+                            <i class="bi bi-check-circle"></i>
+                        </a>
+                        <a href="/propostas/{{ p.id }}/status/Recusada" class="btn btn-sm btn-outline-danger" title="Cliente recusou">
+                            <i class="bi bi-x-circle"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">Nenhuma proposta cadastrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+{% endblock %}

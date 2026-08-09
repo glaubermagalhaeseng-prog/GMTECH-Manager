@@ -1,14 +1,13 @@
+from urllib.parse import quote
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
 
+from app.templating import templates
 from app.database import conectar
+from app.validacao import validar_servico
 
 
 router = APIRouter()
-
-templates = Jinja2Templates(directory="app/templates")
-
 
 # =========================
 # SERVIÇOS
@@ -62,6 +61,13 @@ async def salvar_servico(
     valor: float = Form(0)
 
 ):
+
+    erros = validar_servico(descricao)
+    if erros:
+        return RedirectResponse(
+            url="/servicos/novo?erro=" + quote(erros[0]),
+            status_code=303
+        )
 
     conn = conectar()
 

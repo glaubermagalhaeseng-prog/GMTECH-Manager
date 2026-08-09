@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Link de Assinatura - Proposta #{{ proposta_id }}{% endblock %}
+
+{% block content %}
+
+<h2>Link de assinatura digital</h2>
+<p class="text-muted">Proposta PROP-{{ "%04d"|format(proposta_id) }}</p>
+
+<div class="card shadow-sm p-4 mb-4">
+    <p>Envie este link para o cliente assinar a proposta digitalmente:</p>
+
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" id="linkAssinatura" value="{{ link }}" readonly>
+        <button class="btn btn-gmtech" type="button" onclick="navigator.clipboard.writeText(document.getElementById('linkAssinatura').value); this.innerText='Copiado!';">
+            Copiar
+        </button>
+    </div>
+
+    <p class="small text-muted">
+        Ao assinar, o cliente informa nome e CPF. A proposta é marcada como <strong>Aceita</strong>
+        e a Ordem de Serviço é criada automaticamente.
+    </p>
+
+    <a href="/propostas/{{ proposta_id }}" class="btn btn-outline-secondary">Voltar à proposta</a>
+</div>
+
+{% endblock %}

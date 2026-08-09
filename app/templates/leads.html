@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}
+Leads - GMTECH Manager
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="bi bi-lightning-charge-fill"></i>
+        Leads do Simulador
+    </h2>
+    <a href="/orcamento" target="_blank" class="btn btn-gmtech">
+        <i class="bi bi-box-arrow-up-right"></i>
+        Ver página pública
+    </a>
+</div>
+
+<div class="card card-dashboard p-4">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Data</th>
+                <th>Nome</th>
+                <th>WhatsApp</th>
+                <th>Cidade/UF</th>
+                <th>Conta (R$)</th>
+                <th>Sistema estimado</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lead in leads %}
+            <tr>
+                <td>{{ lead.data }}</td>
+                <td><strong>{{ lead.nome }}</strong></td>
+                <td>{{ lead.telefone }}</td>
+                <td>{{ lead.cidade }}{% if lead.uf %}/{{ lead.uf }}{% endif %}</td>
+                <td>{{ (lead.valor_conta or 0)|moeda_rs }}</td>
+                <td>{{ lead.potencia_estimada_kwp }} kWp</td>
+                <td>
+                    {% if lead.status == "Novo" %}
+                    <span class="badge" style="background:#073B4C;">Novo</span>
+                    {% elif lead.status == "Em contato" %}
+                    <span class="badge" style="background:#F7941D;">Em contato</span>
+                    {% elif lead.status == "Convertido" %}
+                    <span class="badge bg-success">Convertido</span>
+                    {% else %}
+                    <span class="badge bg-secondary">{{ lead.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/leads/{{ lead.id }}" class="btn btn-sm btn-gmtech">
+                        <i class="bi bi-eye-fill"></i> Visualizar
+                    </a>
+                    <a href="/leads/{{ lead.id }}/excluir"
+                       class="btn btn-sm btn-excluir-gmtech"
+                       onclick="return confirm('Excluir este lead?')">
+                        <i class="bi bi-trash-fill"></i>
+                    </a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" class="text-center text-muted">
+                    Nenhum lead recebido ainda. Compartilhe o link
+                    <code>/orcamento</code> na bio do Instagram para começar a receber.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

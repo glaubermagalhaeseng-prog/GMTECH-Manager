@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+jinja2
+python-multipart
+itsdangerous
+reportlab
+svglib
+pillow
+sqlalchemy
+psycopg2-binary
+pdfplumber
+pymupdf
+pytesseract

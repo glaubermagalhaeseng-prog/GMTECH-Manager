@@ -1,17 +1,13 @@
+from urllib.parse import quote
 from fastapi import APIRouter, Request, Form
-from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 
+from app.templating import templates
 from app.database import conectar
+from app.validacao import validar_sistema_solar
 
 
 router = APIRouter()
-
-
-templates = Jinja2Templates(
-    directory="app/templates"
-)
-
 
 
 # =====================================
@@ -65,10 +61,20 @@ async def salvar_sistema_solar(
 
     economia_mensal: float = Form(...),
 
+    valor_conta_atual: float = Form(0),
+
+    valor_conta_residual: float = Form(0),
+
     observacoes: str = Form("")
 
 ):
 
+    erros = validar_sistema_solar(potencia_kwp, quantidade_modulos, geracao_mensal)
+    if erros:
+        return RedirectResponse(
+            url=f"/propostas/{proposta_id}/sistema-solar?erro=" + quote(erros[0]),
+            status_code=303
+        )
 
     conn = conectar()
 
@@ -100,6 +106,10 @@ async def salvar_sistema_solar(
 
         economia_mensal,
 
+        valor_conta_atual,
+
+        valor_conta_residual,
+
         observacoes
 
     )
@@ -107,7 +117,7 @@ async def salvar_sistema_solar(
 
     VALUES
 
-    (?,?,?,?,?,?,?,?,?,?)
+    (?,?,?,?,?,?,?,?,?,?,?,?)
 
     """,
 
@@ -130,6 +140,10 @@ async def salvar_sistema_solar(
         geracao_mensal,
 
         economia_mensal,
+
+        valor_conta_atual,
+
+        valor_conta_residual,
 
         observacoes
 

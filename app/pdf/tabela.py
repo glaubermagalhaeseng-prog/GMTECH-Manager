@@ -1,193 +1,76 @@
 from reportlab.lib import colors
+from reportlab.platypus import Table, TableStyle, Spacer, Paragraph
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.enums import TA_LEFT, TA_RIGHT
 
-from reportlab.platypus import (
-    Table,
-    TableStyle,
-    Spacer
-)
+from app.formatadores import moeda_rs
+from app.pdf.estilos import AZUL, LARANJA
 
 
 def formatar_moeda(valor):
-
-    return (
-        f"R$ {valor:,.2f}"
-        .replace(",", "X")
-        .replace(".", ",")
-        .replace("X", ".")
-    )
-
+    return moeda_rs(valor)
 
 
 def desenhar_tabela(elementos, itens):
+    """Lista itens um abaixo do outro + total."""
+    estilo_desc = ParagraphStyle(
+        "item_desc_v", fontName="Helvetica", fontSize=10, leading=14,
+        textColor=colors.HexColor("#222222"), alignment=TA_LEFT,
+    )
+    estilo_valor = ParagraphStyle(
+        "item_valor_v", fontName="Helvetica-Bold", fontSize=11, leading=14,
+        textColor=AZUL, alignment=TA_RIGHT,
+    )
+    estilo_total = ParagraphStyle(
+        "item_total_v", fontName="Helvetica-Bold", fontSize=12, leading=16,
+        textColor=colors.white, alignment=TA_LEFT,
+    )
+    estilo_total_v = ParagraphStyle(
+        "item_total_vv", fontName="Helvetica-Bold", fontSize=12, leading=16,
+        textColor=colors.white, alignment=TA_RIGHT,
+    )
 
-
-    dados = [
-
-        [
-            "Descrição",
-            "Qtd",
-            "Valor Unitário",
-            "Total"
-        ]
-
-    ]
-
-
-    total = 0
-
-
-    for item in itens:
-
-
-        valor_total = (
-            item["quantidade"] *
-            item["valor_unitario"]
-        )
-
-
+    total = 0.0
+    for i, item in enumerate(itens or []):
+        qtd = item["quantidade"] or 0
+        vu = item["valor_unitario"] or 0
+        valor_total = qtd * vu
         total += valor_total
-
-
-        dados.append(
-
-            [
-
-                item["descricao"],
-
-                str(item["quantidade"]),
-
-                formatar_moeda(
-                    item["valor_unitario"]
-                ),
-
-                formatar_moeda(
-                    valor_total
-                )
-
-            ]
-
+        desc = (item["descricao"] or "").replace("\n", "<br/>")
+        linha = Table(
+            [[
+                Paragraph(f"{i + 1}. {desc}", estilo_desc),
+                Paragraph(formatar_moeda(valor_total) if valor_total else "—", estilo_valor),
+            ]],
+            colWidths=[380, 100],
         )
+        linha.setStyle(TableStyle([
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F7F9FC")),
+            ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#E2E8F0")),
+            ("LEFTPADDING", (0, 0), (-1, -1), 10),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+            ("TOPPADDING", (0, 0), (-1, -1), 10),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+        ]))
+        elementos.append(linha)
+        elementos.append(Spacer(1, 8))
 
-
-
-    # linha final de total
-
-    dados.append(
-
-        [
-
-            "",
-
-            "",
-
-            "TOTAL",
-
-            formatar_moeda(total)
-
-        ]
-
+    rodape = Table(
+        [[
+            Paragraph("TOTAL DO INVESTIMENTO", estilo_total),
+            Paragraph(formatar_moeda(total), estilo_total_v),
+        ]],
+        colWidths=[380, 100],
     )
-
-
-
-    tabela = Table(
-
-        dados,
-
-        colWidths=[220, 50, 85, 85],
-
-        repeatRows=1
-
-    )
-
-
-
-    tabela.setStyle(
-
-        TableStyle(
-
-            [
-
-                (
-                    "GRID",
-                    (0,0),
-                    (-1,-2),
-                    0.5,
-                    colors.grey
-                ),
-
-
-                (
-                    "BACKGROUND",
-                    (0,0),
-                    (-1,0),
-                    colors.HexColor("#073B4C")
-                ),
-
-
-                (
-                    "TEXTCOLOR",
-                    (0,0),
-                    (-1,0),
-                    colors.white
-                ),
-
-
-                (
-                    "ALIGN",
-                    (1,1),
-                    (-1,-1),
-                    "RIGHT"
-                ),
-
-
-                (
-                    "VALIGN",
-                    (0,0),
-                    (-1,-1),
-                    "MIDDLE"
-                ),
-
-
-                (
-                    "BACKGROUND",
-                    (0,-1),
-                    (-1,-1),
-                    colors.HexColor("#F7941D")
-                ),
-
-
-                (
-                    "TEXTCOLOR",
-                    (0,-1),
-                    (-1,-1),
-                    colors.white
-                ),
-
-
-                (
-                    "FONTNAME",
-                    (0,-1),
-                    (-1,-1),
-                    "Helvetica-Bold"
-                )
-
-
-            ]
-
-        )
-
-    )
-
-
-    elementos.append(tabela)
-
-
-    elementos.append(
-
-        Spacer(1,20)
-
-    )
-
-
+    rodape.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), LARANJA),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 10),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+        ("TOPPADDING", (0, 0), (-1, -1), 12),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
+    ]))
+    elementos.append(rodape)
+    elementos.append(Spacer(1, 16))
     return total

@@ -1,14 +1,14 @@
+from urllib.parse import quote
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
 
+from app.templating import templates
 from app.database import conectar
+from app.auth import empresa_id_sessao
+from app.validacao import validar_cliente
 
 
 router = APIRouter()
-
-templates = Jinja2Templates(directory="app/templates")
-
 
 # =========================
 # CLIENTES
@@ -22,11 +22,14 @@ async def listar_clientes(request: Request):
 
     cursor = conn.cursor()
 
+    emp = empresa_id_sessao(request)
     cursor.execute(
         """
         SELECT * FROM clientes
+        WHERE COALESCE(empresa_id, 1) = ?
         ORDER BY id DESC
-        """
+        """,
+        (emp,)
     )
 
     clientes = cursor.fetchall()
@@ -70,6 +73,13 @@ async def salvar_cliente(
     observacoes: str = Form("")
 
 ):
+
+    erros = validar_cliente(nome)
+    if erros:
+        return RedirectResponse(
+            url="/clientes/novo?erro=" + quote(erros[0]),
+            status_code=303
+        )
 
     conn = conectar()
 
@@ -116,12 +126,11 @@ async def salvar_cliente(
 
 
     conn.commit()
-
+    novo_id = cursor.lastrowid
     conn.close()
 
-
     return RedirectResponse(
-        url="/clientes",
+        url=f"/dimensionador?cliente_id={novo_id}",
         status_code=303
     )
 
@@ -216,6 +225,12 @@ async def salvar_edicao_cliente(
 
 ):
 
+    erros = validar_cliente(nome)
+    if erros:
+        return RedirectResponse(
+            url=f"/clientes/editar/{id}?erro=" + quote(erros[0]),
+            status_code=303
+        )
 
     conn = conectar()
 

@@ -12,15 +12,10 @@ Dimensionamentos
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 
-
     <h2>
-
         <i class="bi bi-sun-fill"></i>
-
         Dimensionamentos Solares
-
     </h2>
-
 
 
     <a href="/dimensionador" class="btn btn-gmtech">
@@ -31,9 +26,7 @@ Dimensionamentos
 
     </a>
 
-
 </div>
-
 
 
 
@@ -51,23 +44,14 @@ Dimensionamentos
                 <tr>
 
                     <th>Cliente</th>
-
                     <th>Modalidade</th>
-
                     <th>Consumo</th>
-
                     <th>Sistema</th>
-
                     <th>Módulos</th>
-
                     <th>Inversor</th>
-
                     <th>Geração</th>
-
                     <th>Economia</th>
-
                     <th>Data</th>
-
                     <th>Ações</th>
 
                 </tr>
@@ -86,38 +70,32 @@ Dimensionamentos
 
 
                     <td>
-
                         {{ item.cliente_nome }}
-
                     </td>
 
-                    <td>
 
+                    <td>
                         {{ item.modalidade }}
-
                     </td>
 
-                    <td>
 
+                    <td>
                         {{ item.consumo_medio }} kWh
-
                     </td>
 
 
 
                     <td>
-
-                        {{ "%.2f"|format(item.potencia_final_kwp) }} kWp
-
+                        {{ item.potencia_final_kwp|numero_br }} kWp
                     </td>
 
 
 
                     <td>
-
                         {{ item.quantidade_modulos }}
-
                     </td>
+
+
 
                     <td>
 
@@ -133,17 +111,17 @@ Dimensionamentos
 
                     </td>
 
+
+
                     <td>
-
                         {{ item.geracao_estimada }} kWh
-
                     </td>
 
 
 
                     <td>
 
-                        R$ {{ "%.2f"|format(item.economia_estimada) }}
+                        {{ item.economia_estimada|moeda_rs }}
 
                     </td>
 
@@ -155,16 +133,14 @@ Dimensionamentos
 
                     </td>
 
-                    <td>
 
-                    <td>
-
-
-                    <td>
 
                     <td>
 
                         <div class="d-flex gap-1 align-items-center">
+
+
+                            <!-- Visualizar -->
 
                             <a href="/dimensionamentos/{{ item.id }}" class="btn btn-sm btn-gmtech" title="Visualizar">
 
@@ -172,6 +148,9 @@ Dimensionamentos
 
                             </a>
 
+
+
+                            <!-- Editar -->
 
                             <a href="/dimensionamentos/{{ item.id }}/editar" class="btn btn-sm btn-editar-gmtech"
                                 title="Editar">
@@ -181,6 +160,9 @@ Dimensionamentos
                             </a>
 
 
+
+                            <!-- Excluir -->
+
                             <a href="/dimensionamentos/{{ item.id }}/excluir" class="btn btn-sm btn-excluir-gmtech"
                                 title="Excluir"
                                 onclick="return confirm('Deseja realmente excluir este dimensionamento?');">
@@ -189,9 +171,19 @@ Dimensionamentos
 
                             </a>
 
-                        </div>
 
-                    </td>
+
+                            <!-- Gerar proposta -->
+
+                            <a href="/dimensionamentos/{{ item.id }}/gerar-proposta" class="btn btn-sm btn-success"
+                                title="Gerar Proposta">
+
+                                <i class="bi bi-file-earmark-text"></i>
+
+                            </a>
+
+
+                        </div>
 
                     </td>
 
@@ -215,6 +207,7 @@ Dimensionamentos
 
 
                 {% endfor %}
+
 
 
             </tbody>

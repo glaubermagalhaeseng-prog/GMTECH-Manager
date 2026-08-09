@@ -1,32 +1,105 @@
 {% extends "base.html" %}
 
 {% block title %}
-Visualizar Proposta
+Proposta #{{ proposta.id }}
 {% endblock %}
 
 {% block content %}
 
-<h2 class="mb-4">
-    <i class="bi bi-file-earmark-text-fill"></i>
-    Proposta #{{ proposta.id }}
-</h2>
+<div class="proposta-hero mb-4">
+
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+
+        <div>
+            <span class="proposta-hero-label">Proposta comercial nº {{ proposta.id }}</span>
+            <h2 class="mb-1">{{ proposta.cliente_nome }}</h2>
+            <span class="text-white-50">{{ proposta.data }}
+                {% if proposta.validade %} · Validade: {{ proposta.validade }}{% endif %}
+            </span>
+        </div>
+
+        <div class="text-end">
+            <span class="badge-status">{{ proposta.status }}</span>
+            <h3 class="mb-0 mt-2">{{ (proposta.valor_total or 0)|moeda_rs }}</h3>
+        </div>
+
+    </div>
+
+    {% if sistemas_solares %}
+    {% set sistema = sistemas_solares[0] %}
+
+    <div class="row mt-4 g-3">
+
+        <div class="col-6 col-md-3">
+            <div class="proposta-stat">
+                <div class="proposta-stat-valor">{{ sistema.potencia_kwp }} kWp</div>
+                <div class="proposta-stat-rotulo">Potência</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="proposta-stat">
+                <div class="proposta-stat-valor">{{ sistema.quantidade_modulos }}</div>
+                <div class="proposta-stat-rotulo">Módulos</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="proposta-stat">
+                <div class="proposta-stat-valor">{{ sistema.geracao_mensal }} kWh</div>
+                <div class="proposta-stat-rotulo">Geração/mês</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="proposta-stat">
+                <div class="proposta-stat-valor">{{ (sistema.economia_mensal or 0)|moeda_rs }}</div>
+                <div class="proposta-stat-rotulo">Economia/mês</div>
+            </div>
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =========================
+     STATUS
+========================= -->
 
 <div class="card card-dashboard mb-4">
-    <div class="card-body">
+    <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
 
-        <h5>Cliente</h5>
-        <p>{{ proposta.cliente_nome }}</p>
+        <span class="fw-bold"><i class="bi bi-flag-fill"></i> Status da proposta</span>
 
-        <h5>Data</h5>
-        <p>{{ proposta.data }}</p>
+        <form method="post" action="/propostas/{{ proposta.id }}/status" class="d-flex gap-2 align-items-center">
 
-        <h5>Status</h5>
-        <span class="badge bg-success">
-            {{ proposta.status }}
-        </span>
+            <select name="status" class="form-select" style="max-width:220px">
+                <option value="Rascunho" {% if proposta.status == "Rascunho" %}selected{% endif %}>Rascunho</option>
+                <option value="Aberta" {% if proposta.status == "Aberta" %}selected{% endif %}>Aberta</option>
+                <option value="Enviada" {% if proposta.status == "Enviada" %}selected{% endif %}>Enviada</option>
+                <option value="Aceita" {% if proposta.status == "Aceita" %}selected{% endif %}>Aceita</option>
+                <option value="Aprovada" {% if proposta.status == "Aprovada" %}selected{% endif %}>Aprovada</option>
+                <option value="Recusada" {% if proposta.status == "Recusada" %}selected{% endif %}>Recusada</option>
+                <option value="Expirada" {% if proposta.status == "Expirada" %}selected{% endif %}>Expirada</option>
+            </select>
+
+            <button type="submit" class="btn btn-gmtech btn-sm">
+                Atualizar
+            </button>
+
+        </form>
+
+        <a href="/roi?proposta_id={{ proposta.id }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-graph-up-arrow"></i> Calcular ROI
+        </a>
 
     </div>
 </div>
+
+
 <!-- =========================
      SISTEMA FOTOVOLTAICO
 ========================= -->
@@ -41,13 +114,11 @@ Visualizar Proposta
         </span>
 
 
-        <a 
-        href="/propostas/{{ proposta.id }}/sistema-solar"
-        class="btn btn-sm btn-gmtech">
+        <a href="/propostas/{{ proposta.id }}/sistema-solar" class="btn btn-sm btn-gmtech">
 
             <i class="bi bi-plus-circle"></i>
 
-            Adicionar Sistema
+            {% if sistemas_solares %}Adicionar outro sistema{% else %}Adicionar Sistema{% endif %}
 
         </a>
 
@@ -57,7 +128,7 @@ Visualizar Proposta
     <div class="card-body">
 
 
-    {% if sistemas_solares %}
+        {% if sistemas_solares %}
 
 
         {% for sistema in sistemas_solares %}
@@ -66,7 +137,7 @@ Visualizar Proposta
         <div class="row">
 
 
-            <div class="col-md-4">
+            <div class="col-md-4 mb-3">
 
                 <strong>Potência:</strong><br>
 
@@ -75,7 +146,7 @@ Visualizar Proposta
             </div>
 
 
-            <div class="col-md-4">
+            <div class="col-md-4 mb-3">
 
                 <strong>Módulos:</strong><br>
 
@@ -86,25 +157,25 @@ Visualizar Proposta
             </div>
 
 
-            <div class="col-md-4">
+            <div class="col-md-4 mb-3">
 
                 <strong>Fabricante:</strong><br>
 
-                {{ sistema.fabricante_modulo }}
+                {{ sistema.fabricante_modulo or '-' }}
 
             </div>
 
 
-            <div class="col-md-4 mt-3">
+            <div class="col-md-4 mb-3">
 
                 <strong>Inversor:</strong><br>
 
-                {{ sistema.modelo_inversor }}
+                {{ sistema.modelo_inversor or '-' }}
 
             </div>
 
 
-            <div class="col-md-4 mt-3">
+            <div class="col-md-4 mb-3">
 
                 <strong>Potência Inversor:</strong><br>
 
@@ -113,7 +184,7 @@ Visualizar Proposta
             </div>
 
 
-            <div class="col-md-4 mt-3">
+            <div class="col-md-4 mb-3">
 
                 <strong>Geração:</strong><br>
 
@@ -122,24 +193,47 @@ Visualizar Proposta
             </div>
 
 
+            <div class="col-md-4">
+
+                <strong>Conta atual (sem solar):</strong><br>
+
+                {% if sistema.valor_conta_atual %}{{ sistema.valor_conta_atual|moeda_rs }}/mês{% else %}<span class="text-muted">não informado</span>{% endif %}
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <strong>Conta residual (com solar):</strong><br>
+
+                {% if sistema.valor_conta_residual %}{{ sistema.valor_conta_residual|moeda_rs }}/mês{% else %}<span class="text-muted">não informado</span>{% endif %}
+
+            </div>
+
+
         </div>
+
+
+        {% if not loop.last %}<hr>{% endif %}
 
 
         {% endfor %}
 
 
 
-    {% else %}
+        {% else %}
 
 
         <p class="text-muted">
 
-            Nenhum sistema fotovoltaico cadastrado.
+            Nenhum sistema fotovoltaico cadastrado. Adicione um sistema para
+            que a proposta em PDF mostre os cálculos de geração, economia e
+            retorno automaticamente.
 
         </p>
 
 
-    {% endif %}
+        {% endif %}
 
 
     </div>
@@ -160,144 +254,162 @@ Visualizar Proposta
 
                 <tr>
                     <th>Descrição</th>
-                    <th>Qtd</th>
-                    <th>Valor Unit.</th>
+                    <th style="width:100px">Qtd</th>
+                    <th style="width:160px">Valor Unit. (R$)</th>
                     <th>Total</th>
+                    <th></th>
                 </tr>
 
             </thead>
 
             <tbody>
 
-            {% for item in itens %}
+                {% for item in itens %}
 
                 <tr>
 
                     <td>{{ item.descricao }}</td>
 
-                    <td>{{ item.quantidade }}</td>
+                    <td>
+                        <input type="number" step="0.01" min="0" name="quantidade" value="{{ item.quantidade }}" form="item-form-{{ item.id }}" class="form-control form-control-sm">
+                    </td>
 
-                    <td>R$ {{ "%.2f"|format(item.valor_unitario) }}</td>
+                    <td>
+                        <input type="number" step="0.01" min="0" name="valor_unitario" value="{{ item.valor_unitario }}" form="item-form-{{ item.id }}" class="form-control form-control-sm">
+                    </td>
 
                     <td>
                         R$
-                        {{ "%.2f"|format(item.quantidade * item.valor_unitario) }}
+                        {{ (item.quantidade * item.valor_unitario)|moeda_rs }}
+                    </td>
+
+                    <td>
+                        <button type="submit" form="item-form-{{ item.id }}" class="btn btn-sm btn-gmtech">
+                            <i class="bi bi-save"></i>
+                        </button>
                     </td>
 
                 </tr>
 
-            {% endfor %}
+                {% endfor %}
 
             </tbody>
 
+            <tfoot>
+                <tr>
+                    <th colspan="3" class="text-end">Total da proposta</th>
+                    <th colspan="2">{{ (proposta.valor_total or 0)|moeda_rs }}</th>
+                </tr>
+            </tfoot>
+
         </table>
 
+        {% for item in itens %}
+        <form id="item-form-{{ item.id }}" method="post" action="/propostas/{{ proposta.id }}/itens/{{ item.id }}/atualizar"></form>
+        {% endfor %}
+
     </div>
 
 </div>
-    <!-- ========================= -->
-<!-- SISTEMA FOTOVOLTAICO -->
-<!-- ========================= -->
-
-<div class="card card-dashboard mt-4">
-
-    <div class="card-header">
-
-        <i class="bi bi-sun-fill"></i>
-        Sistema Fotovoltaico
-
-    </div>
 
 
-    <div class="card-body">
-
-
-    {% if sistema_solar %}
-
-
-        <div class="row">
-
-
-            <div class="col-md-6">
-
-                <p>
-                    <b>Potência instalada:</b>
-                    {{ sistema_solar.potencia_kwp }} kWp
-                </p>
-
-
-                <p>
-                    <b>Módulos:</b>
-                    {{ sistema_solar.quantidade_modulos }}
-                    x
-                    {{ sistema_solar.potencia_modulo }} W
-                </p>
-
-
-                <p>
-                    <b>Fabricante dos módulos:</b>
-                    {{ sistema_solar.fabricante_modulo }}
-                </p>
-
-
-            </div>
-
-
-
-            <div class="col-md-6">
-
-
-                <p>
-                    <b>Inversor:</b>
-                    {{ sistema_solar.modelo_inversor }}
-                </p>
-
-
-                <p>
-                    <b>Potência do inversor:</b>
-                    {{ sistema_solar.potencia_inversor }} kW
-                </p>
-
-
-                <p>
-                    <b>Geração estimada:</b>
-                    {{ sistema_solar.geracao_mensal }} kWh/mês
-                </p>
-
-
-            </div>
-
-
+<!-- =========================
+     FECHAR NEGÓCIO / AÇÕES
+========================= -->
+<div class="card card-dashboard mb-4 border-0 shadow-sm">
+  <div class="card-header bg-transparent">
+    <strong><i class="bi bi-send-check"></i> Enviar ao cliente e fechar negócio</strong>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="p-3 rounded border h-100">
+          <div class="fw-semibold mb-2">Documentos e contato</div>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="/propostas/{{ proposta.id }}/pdf" class="btn btn-servico btn-sm">
+              <i class="bi bi-file-earmark-pdf"></i> Gerar PDF
+            </a>
+            {% if whatsapp_url %}
+            <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-whatsapp btn-sm">
+              <i class="bi bi-whatsapp"></i> Enviar proposta
+            </a>
+            {% endif %}
+            <a href="/propostas/{{ proposta.id }}/gerar-link-assinatura" class="btn btn-success btn-sm">
+              <i class="bi bi-pen"></i> Link de assinatura
+            </a>
+          </div>
+          {% if proposta.assinatura_data %}
+          <div class="alert alert-success mt-3 mb-0 py-2 small">
+            <strong>Assinada:</strong> {{ proposta.assinatura_nome }} · CPF {{ proposta.assinatura_cpf }} · {{ proposta.assinatura_data }}
+          </div>
+          {% endif %}
         </div>
+      </div>
+      <div class="col-md-6">
+        <div class="p-3 rounded border h-100">
+          <div class="fw-semibold mb-2">Pagamento Asaas</div>
+          {% if proposta.pagamento_status %}
+          <p class="small mb-2">
+            Status: <strong>{{ proposta.pagamento_status }}</strong>
+            {% if proposta.asaas_status %} ({{ proposta.asaas_status }}){% endif %}
+            {% if proposta.pago_em %}<br>Pago em: {{ proposta.pago_em }}{% endif %}
+          </p>
+          {% endif %}
+          {% if proposta.asaas_invoice_url %}
+          <div class="d-flex flex-wrap gap-2 mb-2">
+            <a href="{{ proposta.asaas_invoice_url }}" target="_blank" class="btn btn-success btn-sm">Link de pagamento</a>
+            {% if whatsapp_pagamento_url %}
+            <a href="{{ whatsapp_pagamento_url }}" target="_blank" class="btn btn-whatsapp btn-sm">
+              <i class="bi bi-whatsapp"></i> Enviar cobrança
+            </a>
+            {% endif %}
+          </div>
+          {% endif %}
+          <form method="post" action="/propostas/{{ proposta.id }}/gerar-pagamento" class="row g-2 align-items-end">
+            <div class="col-auto">
+              <select name="billing_type" class="form-select form-select-sm">
+                <option value="UNDEFINED">Cliente escolhe</option>
+                <option value="PIX">PIX</option>
+                <option value="BOLETO">Boleto</option>
+                <option value="CREDIT_CARD">Cartão</option>
+              </select>
+            </div>
+            <div class="col-auto">
+              <input type="number" name="dias_vencimento" value="7" min="1" max="60"
+                     class="form-control form-control-sm" style="width:70px" title="Dias vencimento">
+            </div>
+            <div class="col-auto">
+              <button type="submit" class="btn btn-gmtech btn-sm">Gerar cobrança</button>
+            </div>
+          </form>
+          <p class="text-muted small mt-2 mb-0">Pagamento confirmado → proposta Aceita + OS automática.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-
+<div class="card card-dashboard mb-4">
+  <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <strong><i class="bi bi-clipboard-check"></i> Ordem de Serviço</strong>
+      <p class="mb-0 text-muted small">Criada ao aceitar, assinar ou pagar. Também pode criar manualmente.</p>
+    </div>
+    {% if not ordem_existente %}
+    <form method="post" action="/propostas/{{ proposta.id }}/criar-ordem">
+      <button type="submit" class="btn btn-gmtech btn-sm"
+              onclick="return confirm('Criar ordem de serviço a partir desta proposta?')">
+        <i class="bi bi-plus-lg"></i> Criar OS
+      </button>
+    </form>
     {% else %}
-
-
-        <div class="alert alert-warning mb-0">
-
-            Nenhum sistema fotovoltaico cadastrado para esta proposta.
-
-        </div>
-
-
+    <a href="/ordens-servico/{{ ordem_existente.id }}" class="btn btn-outline-secondary btn-sm">Ver OS #{{ ordem_existente.id }}</a>
     {% endif %}
-
-
-    </div>
-
+  </div>
 </div>
-<a href="/propostas" class="btn btn-gmtech mt-4">
-    Voltar
-</a>
 
-<a href="/propostas/{{ proposta.id }}/pdf" 
-   class="btn btn-servico mt-4">
-
-    <i class="bi bi-file-earmark-pdf"></i>
-
-    Gerar PDF
-
-</a>
+<div class="d-flex gap-2 mb-4">
+  <a href="/propostas" class="btn btn-outline-secondary btn-sm">← Voltar às propostas</a>
+</div>
 
 {% endblock %}

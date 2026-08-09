@@ -7,7 +7,17 @@ Dimensionador Solar
 
 
 
+
+
 {% block content %}
+
+{% if request.query_params.get('erro') %}
+<div class="alert alert-danger alert-validacao mb-3">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    {{ request.query_params.get('erro') }}
+</div>
+{% endif %}
+
 
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -22,7 +32,61 @@ Dimensionador Solar
 
 
 
-<form method="post" action="/dimensionador/salvar">
+
+<div class="card card-dashboard mb-4 border-primary">
+  <div class="card-body">
+    <h5 class="mb-2"><i class="bi bi-receipt"></i> Fatura de energia</h5>
+    <p class="text-muted small mb-3">
+      Envie o PDF ou foto da fatura (Energisa, CEMIG, ENEL, CPFL, etc.).
+      O sistema tenta ler o <strong>consumo (kWh)</strong>, o <strong>valor</strong> e a <strong>tarifa</strong>.
+      Confira sempre os números. Faturas da Energisa em PDF-imagem precisam do
+      <strong>Tesseract OCR</strong> instalado no PC.
+    </p>
+    <form method="post" action="/dimensionador/ler-fatura" enctype="multipart/form-data" class="row g-2 align-items-end" id="formFatura">
+      <div class="col-md-5">
+        <label class="form-label">Arquivo (PDF, PNG, JPG)</label>
+        <input type="file" name="fatura" id="inputFatura" class="form-control"
+               accept=".pdf,.png,.jpg,.jpeg,.webp,.tif,.tiff" required>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Cliente (opcional)</label>
+        <select name="cliente_id" class="form-select" id="fatura_cliente_id">
+          <option value="">—</option>
+          {% for cliente in clientes %}
+          <option value="{{ cliente.id }}"
+            {% if cliente_preselecionado and cliente_preselecionado|int == cliente.id %}selected{% endif %}>
+            {{ cliente.nome }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-gmtech w-100" id="btnLerFatura">
+          <i class="bi bi-search"></i> Enviar e ler fatura
+        </button>
+      </div>
+    </form>
+    {% if fatura_resultado %}
+    <div class="alert alert-{{ 'success' if fatura_resultado.confianca == 'alta' else 'warning' }} mt-3 mb-0">
+      <strong>Leitura da fatura</strong>
+      (confiança: {{ fatura_resultado.confianca }})
+      <ul class="mb-1 mt-2">
+        <li>Consumo: <strong id="fr_consumo">{{ fatura_resultado.consumo_kwh or '—' }}</strong> kWh</li>
+        <li>Valor conta: <strong id="fr_valor">{{ fatura_resultado.valor_conta or '—' }}</strong></li>
+        <li>Tarifa estimada: <strong id="fr_tarifa">{{ fatura_resultado.tarifa_estimada or '—' }}</strong> R$/kWh</li>
+      </ul>
+      {% if fatura_resultado.avisos %}
+      <div class="small">{{ fatura_resultado.avisos | join(' · ') }}</div>
+      {% endif %}
+      {% if fatura_resultado.arquivo_url %}
+      <a href="{{ fatura_resultado.arquivo_url }}" target="_blank" class="small">Ver arquivo enviado</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<form method="post" action="/dimensionador/salvar" onsubmit="return validarFormulario();">
 
 
     <input type="hidden" name="dimensionamento_id" value="{{ dimensionamento.id if dimensionamento else '' }}">
@@ -34,13 +98,11 @@ Dimensionador Solar
 
             <div class="row">
 
-
                 <!-- =========================
 DADOS DE ENTRADA
 ========================= -->
 
-
-                <div class="col-md-6">
+                <div class="col-12 col-lg-8">
 
 
                     <h5>
@@ -68,8 +130,7 @@ DADOS DE ENTRADA
 
                             {% for cliente in clientes %}
 
-                            <option value="{{ cliente.id }}" {% if dimensionamento and
-                                dimensionamento.cliente_id==cliente.id %} selected {% endif %}>
+                            <option value="{{ cliente.id }}" {% if (dimensionamento and dimensionamento.cliente_id==cliente.id) or (cliente_preselecionado and cliente_preselecionado|int == cliente.id) %} selected {% endif %}>
 
                                 {{ cliente.nome }}
 
@@ -112,6 +173,11 @@ DADOS DE ENTRADA
                                 </option>
 
                             </select>
+                            <div class="small text-muted mt-1" id="ajuda_modalidade">
+                                <strong>Local:</strong> gera e consome no mesmo endereço.<br>
+                                <strong>Remoto:</strong> gera em um local e compensa outra UC do mesmo titular (some os consumos).<br>
+                                <strong>Compartilhada:</strong> rateio entre várias UCs (informe o consumo de cada beneficiária).
+                            </div>
 
                         </div>
                         <div class="mb-3">
@@ -147,33 +213,51 @@ DADOS DE ENTRADA
                         <div class="mb-3">
 
                             <label>
-
                                 Ano de conexão da usina
-
                             </label>
 
                             <select class="form-select" id="ano_conexao" name="ano_conexao" onchange="calcular()">
-
-                                <option value="2023">2023</option>
-
-                                <option value="2024">2024</option>
-
-                                <option value="2025">2025</option>
-
-                                <option value="2026" selected>2026</option>
-
-                                <option value="2027">2027</option>
-
+                                <option value="2022">2022 ou antes (sem Fio B)</option>
+                                <option value="2023">2023 (15%)</option>
+                                <option value="2024">2024 (30%)</option>
+                                <option value="2025">2025 (45%)</option>
+                                <option value="2026" selected>2026 (60% do Fio B)</option>
+                                <option value="2027">2027 (75% do Fio B)</option>
+                                <option value="2028">2028 (90% do Fio B)</option>
+                                <option value="2029">2029+ (100% do Fio B)</option>
                             </select>
-
+                            <small class="text-muted">Usado só se o Fio B estiver ativado abaixo.</small>
                         </div>
 
-                        <label>
-                            Consumo médio (kWh/mês)
+                        <div class="mb-3 form-check">
+                            <input class="form-check-input" type="checkbox" id="aplicar_fio_b" name="aplicar_fio_b" value="1" onchange="calcular()">
+                            <label class="form-check-label" for="aplicar_fio_b">
+                                <strong>Aplicar Fio B (Lei 14.300)</strong>
+                            </label>
+                            <div class="small text-muted">
+                                O custo usa só a parcela <strong>EUSD-B</strong> (TUSD Fio B da fatura), não a tarifa inteira.
+                                Remoto/compartilhada: marcado automaticamente.
+                            </div>
+                        </div>
+
+                        <div class="mb-3" id="bloco_eusd_b">
+                            <label>EUSD-B — Fio B da fatura (R$/kWh)</label>
+                            <input type="number" class="form-control" name="eusd_b" id="eusd_b"
+                                value="0.083" min="0" step="0.0001" oninput="calcular()">
+                            <small class="text-muted">
+                                Na fatura Energisa: campo <em>EUSD-B</em> (R$/MWh) ÷ 1000.
+                                Ex.: 83,31 ÷ 1000 = <strong>0,0833</strong> R$/kWh.
+                            </small>
+                        </div>
+
+                        <label id="label_consumo">
+                            Consumo da unidade geradora (kWh/mês)
                         </label>
+                        <small class="text-muted d-block mb-1" id="dica_consumo">
+                            Em autoconsumo remoto, informe o consumo do local da usina; as outras UCs vão em beneficiárias.
+                        </small>
 
-
-                        <input type="number" class="form-control" name="consumo" id="consumo"
+                        <input type="number" class="form-control" name="consumo" id="consumo" required min="1" step="0.01"
                             value="{{ dimensionamento.consumo_medio if dimensionamento else 550 }}"
                             oninput="calcular()">
 
@@ -185,7 +269,7 @@ DADOS DE ENTRADA
                             </label>
 
 
-                            <input type="number" class="form-control" name="produtividade" id="produtividade"
+                            <input type="number" class="form-control" name="produtividade" id="produtividade" required min="1" step="0.01"
                                 value="{{ dimensionamento.produtividade if dimensionamento else 125 }}"
                                 oninput="calcular()">
 
@@ -214,7 +298,7 @@ DADOS DE ENTRADA
                             </label>
 
 
-                            <input type="number" class="form-control" name="modulo" id="modulo"
+                            <input type="number" class="form-control" name="modulo" id="modulo" required min="1"
                                 value="{{ dimensionamento.potencia_modulo if dimensionamento else 620 }}"
                                 oninput="calcular()">
 
@@ -231,132 +315,16 @@ DADOS DE ENTRADA
                             </label>
 
 
-                            <input type="number" step="0.01" class="form-control" name="tarifa" id="tarifa"
+                            <input type="number" step="0.01" class="form-control" name="tarifa" id="tarifa" required min="0.01" step="0.01"
                                 value="{{ dimensionamento.tarifa_energia if dimensionamento else 0.85 }}"
                                 oninput="calcular()">
-
-
                         </div>
-
-
                     </div>
-
-
-
-
-
-                    <!-- =========================
-EQUIPAMENTOS
-========================= -->
-
-
-                    <div class="col-md-6">
-
-
-                        <h5>
-
-                            Equipamentos
-
-                        </h5>
-
-
-
-                        <div class="mb-3">
-
-                            <label>
-                                Fabricante do módulo
-                            </label>
-
-
-                            <input type="text" class="form-control" name="fabricante_modulo"
-                                value="{{ dimensionamento.fabricante_modulo if dimensionamento else '' }}"
-                                placeholder="Ex: Trina Solar">
-
-
-                        </div>
-
-
-
-
-                        <div class="mb-3">
-
-                            <label>
-                                Modelo do módulo
-                            </label>
-
-
-                            <input type="text" class="form-control" name="modelo_modulo"
-                                value="{{ dimensionamento.modelo_modulo if dimensionamento else '' }}"
-                                placeholder="Ex: 620 Wp">
-
-
-                        </div>
-
-
-
-
-
-                        <div class="mb-3">
-
-                            <label>
-                                Fabricante do inversor
-                            </label>
-
-
-                            <input type="text" class="form-control" name="fabricante_inversor"
-                                value="{{ dimensionamento.fabricante_inversor if dimensionamento else '' }}"
-                                placeholder="Ex: Huawei">
-
-
-                        </div>
-
-
-
-
-
-                        <div class="mb-3">
-
-                            <label>
-                                Modelo do inversor
-                            </label>
-
-
-                            <input type="text" class="form-control" name="modelo_inversor"
-                                value="{{ dimensionamento.modelo_inversor if dimensionamento else '' }}"
-                                placeholder="Ex: SUN2000-20KTL">
-
-
-                        </div>
-
-
-
-
-
-                        <div class="mb-3">
-
-                            <label>
-                                Potência do inversor (kW)
-                            </label>
-
-
-                            <input type="number" step="0.01" class="form-control" name="potencia_inversor"
-                                value="{{ dimensionamento.potencia_inversor if dimensionamento else 0 }}">
-
-
-                        </div>
-
-
-                    </div>
-
-
-
                 </div>
-
-
-
-
+                <!-- fim row dados -->
 
                 <hr>
+
 
 
 
@@ -524,7 +492,7 @@ RESULTADOS
 
 
                 <strong>
-                    Custo Fio B:
+                    Custo Fio B (<span id="pct_fio_b_label">não aplicado</span>):
                 </strong>
 
                 R$
@@ -552,22 +520,23 @@ RESULTADOS
 
                 <!-- CAMPOS OCULTOS -->
 
-                <input type="hidden" name="consumo_total_projeto" id="h_consumo_total">
+                <input type="hidden" name="consumo_total_projeto" id="h_consumo_total" value="0">
 
-                <input type="hidden" name="quantidade_modulos" id="h_quantidade">
-
-
-                <input type="hidden" name="potencia_final" id="h_potencia_final">
+                <input type="hidden" name="quantidade_modulos" id="h_quantidade" value="0">
 
 
-                <input type="hidden" name="geracao" id="h_geracao">
+                <input type="hidden" name="potencia_final" id="h_potencia_final" value="0">
 
 
-                <input type="hidden" name="economia" id="h_economia">
+                <input type="hidden" name="geracao" id="h_geracao" value="0">
 
-                <input type="hidden" name="custo_fio_b" id="h_custo_fio_b">
 
-                <input type="hidden" name="economia_liquida" id="h_economia_liquida">
+                <input type="hidden" name="economia" id="h_economia" value="0">
+
+                <input type="hidden" name="custo_fio_b" id="h_custo_fio_b" value="0">
+                <input type="hidden" name="percentual_fio_b" id="h_percentual_fio_b" value="0">
+
+                <input type="hidden" name="economia_liquida" id="h_economia_liquida" value="0">
 
 
 
@@ -594,6 +563,7 @@ RESULTADOS
         </div>
 
 
+</div>
 </form>
 
 
@@ -601,287 +571,220 @@ RESULTADOS
 
 
 <script>
+(function () {
+    function formatarMoedaBR(valor) {
+        var n = Number(valor);
+        if (!isFinite(n)) n = 0;
+        return n.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
 
-    function gerarBeneficiarias() {
+    function formatarNumeroBR(valor, casas) {
+        var n = Number(valor);
+        if (!isFinite(n)) n = 0;
+        if (casas === undefined) casas = 2;
+        return n.toLocaleString("pt-BR", {
+            minimumFractionDigits: casas,
+            maximumFractionDigits: casas
+        });
+    }
 
-        let quantidade = Number(
-            document.getElementById("quantidade_beneficiarias").value
-        );
+    // expõe globalmente para oninput/onchange do HTML
+    window.formatarMoedaBR = formatarMoedaBR;
+    window.formatarNumeroBR = formatarNumeroBR;
 
-        let div = document.getElementById("lista_beneficiarias");
+    function setText(id, val) {
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = val;
+    }
 
+    function setVal(id, val) {
+        var el = document.getElementById(id);
+        if (el) el.value = val;
+    }
+
+    function num(id, def) {
+        var el = document.getElementById(id);
+        var n = el ? Number(el.value) : NaN;
+        if (!isFinite(n)) return def === undefined ? 0 : def;
+        return n;
+    }
+
+    window.gerarBeneficiarias = function gerarBeneficiarias() {
+        var quantidade = num("quantidade_beneficiarias", 0);
+        var div = document.getElementById("lista_beneficiarias");
+        if (!div) return;
         div.innerHTML = "";
+        for (var i = 1; i <= quantidade; i++) {
+            div.innerHTML +=
+                '<div class="mb-3">' +
+                "<label>Beneficiária " + i + " - Consumo (kWh/mês)</label>" +
+                '<input type="number" class="form-control consumo-beneficiaria" value="0" min="0" step="0.01" oninput="calcular()">' +
+                "</div>";
+        }
+        calcular();
+    };
 
-        for (let i = 1; i <= quantidade; i++) {
+    window.alterarModalidade = function alterarModalidade() {
+        var modalidadeEl = document.getElementById("modalidade");
+        var modalidade = modalidadeEl ? modalidadeEl.value : "Autoconsumo Local";
+        var bloco = document.getElementById("blocoBeneficiarias");
+        var fioB = document.getElementById("aplicar_fio_b");
+        if (!bloco) return;
 
-            div.innerHTML += `
+        var remoto = (modalidade === "Autoconsumo Remoto" || modalidade === "Geração Compartilhada");
 
-        <div class="mb-3">
-
-            <label>
-                Beneficiária ${i} - Consumo (kWh/mês)
-            </label>
-
-            <input 
-            type="number"
-            class="form-control consumo-beneficiaria"
-            value="0"
-            oninput="calcular()">
-
-        </div>
-
-        `;
-
+        // Fio B: marca automaticamente só em remoto/compartilhada
+        if (fioB) {
+            fioB.checked = remoto;
         }
 
-        calcular();
-
-    }
-
-    function alterarModalidade() {
-
-        let modalidade =
-            document.getElementById("modalidade").value;
-
-
-        let bloco =
-            document.getElementById("blocoBeneficiarias");
-
-
-        if (
-            modalidade == "Autoconsumo Remoto" ||
-            modalidade == "Geração Compartilhada"
-        ) {
-
+        if (remoto) {
             bloco.style.display = "block";
-
-        }
-        else {
-
+            if (num("quantidade_beneficiarias", 0) < 1) {
+                var q = document.getElementById("quantidade_beneficiarias");
+                if (q) q.value = 1;
+            }
+            gerarBeneficiarias();
+        } else {
             bloco.style.display = "none";
+            var lista = document.getElementById("lista_beneficiarias");
+            if (lista) lista.innerHTML = "";
+            var qb = document.getElementById("quantidade_beneficiarias");
+            if (qb) qb.value = 0;
+            setVal("consumo_beneficiarias", 0);
+            calcular();
+        }
+    };
 
-            document.getElementById("lista_beneficiarias").innerHTML = "";
+    window.validarFormulario = function validarFormulario() {
+        if (typeof calcular === "function") calcular();
+        var cliente = document.querySelector('[name="cliente_id"]');
+        var consumo = document.getElementById("consumo");
+        var prod = document.getElementById("produtividade");
+        var mod = document.getElementById("modulo");
+        var tarifa = document.getElementById("tarifa");
+        var msgs = [];
+        if (!cliente || !cliente.value) msgs.push("Selecione o cliente.");
+        if (!consumo || !consumo.value || Number(consumo.value) <= 0) msgs.push("Informe o consumo médio (kWh/mês).");
+        if (!prod || !prod.value || Number(prod.value) <= 0) msgs.push("Informe a produtividade.");
+        if (!mod || !mod.value || Number(mod.value) <= 0) msgs.push("Informe a potência do módulo.");
+        if (!tarifa || !tarifa.value || Number(tarifa.value) <= 0) msgs.push("Informe a tarifa de energia.");
+        if (msgs.length) {
+            alert(msgs.join("\n"));
+            return false;
+        }
+        return true;
+    };
 
-            document.getElementById("quantidade_beneficiarias").value = 0;
+    window.calcular = function calcular() {
+        var consumo = num("consumo", 0);
+        var consumoBeneficiarias = 0;
+        document.querySelectorAll(".consumo-beneficiaria").forEach(function (campo) {
+            consumoBeneficiarias += Number(campo.value) || 0;
+        });
 
-            document.getElementById("h_custo_fio_b").value =
-                custoFioB.toFixed(2);
+        var consumoTotal = consumo + consumoBeneficiarias;
+        var produtividade = num("produtividade", 125);
+        var margem = num("margem", 10);
+        var modulo = num("modulo", 620);
+        var tarifa = num("tarifa", 0.85);
 
+        if (produtividade <= 0) produtividade = 125;
+        if (modulo <= 0) modulo = 620;
+        if (tarifa <= 0) tarifa = 0.85;
+        if (margem < 0) margem = 0;
 
-            document.getElementById("h_economia_liquida").value =
-                economiaLiquida.toFixed(2);
+        var consumoCorrigido = consumoTotal * (1 + margem / 100);
+        var kwp = produtividade > 0 ? consumoCorrigido / produtividade : 0;
+        var quantidade = Math.max(0, Math.ceil((kwp * 1000) / modulo));
+        if (consumoTotal > 0 && quantidade < 1) quantidade = 1;
 
+        var potenciaFinal = (quantidade * modulo) / 1000;
+        var geracao = potenciaFinal * produtividade;
+        var economia = geracao * tarifa;
+
+        var anoConexao = num("ano_conexao", 2026);
+        var aplicarFioBEl = document.getElementById("aplicar_fio_b");
+        var aplicarFioB = aplicarFioBEl ? aplicarFioBEl.checked : false;
+        var eusdB = num("eusd_b", 0.083); // R$/kWh (EUSD-B da fatura)
+
+        // % da transição Lei 14.300 sobre o Fio B (não sobre a tarifa cheia)
+        var percentualFioB = 0;
+        if (aplicarFioB) {
+            if (anoConexao <= 2022) percentualFioB = 0;
+            else if (anoConexao === 2023) percentualFioB = 15;
+            else if (anoConexao === 2024) percentualFioB = 30;
+            else if (anoConexao === 2025) percentualFioB = 45;
+            else if (anoConexao === 2026) percentualFioB = 60;
+            else if (anoConexao === 2027) percentualFioB = 75;
+            else if (anoConexao === 2028) percentualFioB = 90;
+            else percentualFioB = 100; // 2029+
         }
 
+        // custo = geração × EUSD-B (R$/kWh) × (% transição)
+        var custoFioB = aplicarFioB ? (geracao * eusdB * (percentualFioB / 100)) : 0;
+        var economiaLiquida = Math.max(0, economia - custoFioB);
 
-        gerarBeneficiarias();
+        var modalidadeEl = document.getElementById("modalidade");
+        var modalidade = modalidadeEl ? modalidadeEl.value : "Autoconsumo Local";
+
+        setText("economia", formatarMoedaBR(economia));
+        setText("custo_fio_b", formatarMoedaBR(custoFioB));
+        setText("economia_liquida", formatarMoedaBR(economiaLiquida));
+        setText("pct_fio_b_label", aplicarFioB
+            ? (percentualFioB + "% × EUSD-B R$ " + eusdB.toFixed(4).replace(".", ","))
+            : "não aplicado");
+        setText("kwp", formatarNumeroBR(kwp, 2));
+        setText("quantidade", quantidade);
+        setText("potencia_final", formatarNumeroBR(potenciaFinal, 2));
+        setText("geracao", Math.round(geracao));
+        setText("consumo_corrigido", Math.round(consumoCorrigido));
+        setText("consumo_total", Math.round(consumoTotal));
+        setText("consumo_unidade", Math.round(consumo));
+        setText("consumo_benef_resultado", Math.round(consumoBeneficiarias));
+
+        setVal("h_quantidade", quantidade || 0);
+        setVal("h_potencia_final", potenciaFinal.toFixed(2));
+        setVal("h_geracao", Math.round(geracao));
+        setVal("h_economia", economia.toFixed(2));
+        setVal("h_custo_fio_b", custoFioB.toFixed(2));
+        setVal("h_economia_liquida", economiaLiquida.toFixed(2));
+        setVal("h_percentual_fio_b", percentualFioB);
+        setVal("h_consumo_total", Math.round(consumoTotal));
+        setVal("consumo_beneficiarias", Math.round(consumoBeneficiarias));
+    };
+
+    // init
+    document.addEventListener("DOMContentLoaded", function () {
+        alterarModalidade();
         calcular();
+        // Preenche a partir da leitura de fatura (sessão)
+        {% if fatura_resultado %}
+        (function () {
+            var c = {{ fatura_resultado.consumo_kwh if fatura_resultado.consumo_kwh is not none else 'null' }};
+            var t = {{ fatura_resultado.tarifa_estimada if fatura_resultado.tarifa_estimada is not none else 'null' }};
+            if (c !== null && document.getElementById("consumo")) {
+                document.getElementById("consumo").value = c;
+            }
+            if (t !== null && document.getElementById("tarifa")) {
+                document.getElementById("tarifa").value = t;
+            }
+            if (typeof calcular === "function") calcular();
+        })();
+        {% endif %}
+    });
 
+    // se o script carregar depois do DOM
+    if (document.readyState !== "loading") {
+        alterarModalidade();
+        calcular();
     }
-
-    let div =
-        document.getElementById("beneficiarias");
-
-    if (
-        modalidade == "Autoconsumo Remoto" ||
-        modalidade == "Geração Compartilhada"
-    ) {
-
-        div.style.display = "block";
-
-    }
-
-    else {
-
-        div.style.display = "none";
-
-        document.getElementById("consumo_beneficiarias").value = 0;
-
-    }
-
-
-    function calcular() {
-
-
-
-        let consumo =
-            Number(document.getElementById("consumo").value);
-
-
-
-        let consumoBeneficiarias = 0;
-
-
-        document.querySelectorAll(".consumo-beneficiaria")
-            .forEach(function (campo) {
-
-                consumoBeneficiarias += Number(campo.value);
-
-            });
-
-
-        let consumoTotal =
-            consumo + consumoBeneficiarias;
-
-
-        let produtividade =
-            Number(document.getElementById("produtividade").value);
-
-        let margem =
-            Number(document.getElementById("margem").value);
-
-        let modulo =
-            Number(document.getElementById("modulo").value);
-
-        let tarifa =
-            Number(document.getElementById("tarifa").value);
-
-        let consumoCorrigido =
-            consumoTotal * (1 + margem / 100);
-
-
-        let kwp =
-            consumoCorrigido / produtividade;
-
-        let quantidade =
-            Math.ceil(
-                (kwp * 1000) / modulo
-            );
-
-        let potenciaFinal =
-            (quantidade * modulo) / 1000;
-
-        let geracao =
-            potenciaFinal * produtividade;
-
-
-        let economia =
-            geracao * tarifa;
-
-
-
-        let anoConexao =
-            Number(document.getElementById("ano_conexao").value);
-
-
-        let percentualFioB = 0;
-
-
-        if (anoConexao <= 2022) {
-
-            percentualFioB = 0;
-
-        }
-        else if (anoConexao == 2023) {
-
-            percentualFioB = 15;
-
-        }
-        else if (anoConexao == 2024) {
-
-            percentualFioB = 30;
-
-        }
-        else if (anoConexao == 2025) {
-
-            percentualFioB = 45;
-
-        }
-        else {
-
-            percentualFioB = 60;
-
-        }
-
-
-        let custoFioB =
-            economia * (percentualFioB / 100);
-
-
-        let economiaLiquida =
-            economia - custoFioB;
-
-        let modalidade =
-            document.getElementById("modalidade").value;
-
-
-
-        document.getElementById("economia").innerHTML =
-            economia.toFixed(2);
-
-
-        if (
-            modalidade == "Autoconsumo Remoto" ||
-            modalidade == "Geração Compartilhada"
-        ) {
-
-            document.getElementById("custo_fio_b").innerHTML =
-                custoFioB.toFixed(2);
-
-
-            document.getElementById("economia_liquida").innerHTML =
-                economiaLiquida.toFixed(2);
-
-        }
-        else {
-
-            document.getElementById("custo_fio_b").innerHTML =
-                "0.00";
-
-
-            document.getElementById("economia_liquida").innerHTML =
-                economia.toFixed(2);
-
-        }
-
-
-
-        document.getElementById("h_quantidade").value =
-            quantidade;
-
-
-
-        document.getElementById("h_potencia_final").value =
-            potenciaFinal.toFixed(2);
-
-
-
-        document.getElementById("h_geracao").value =
-            geracao.toFixed(0);
-
-
-
-        document.getElementById("h_economia").value =
-            economia.toFixed(2);
-
-        document.getElementById("consumo_corrigido").innerHTML =
-            consumoCorrigido.toFixed(0);
-
-        document.getElementById("consumo_total").innerHTML =
-            consumoTotal.toFixed(0);
-
-        document.getElementById("consumo_unidade").innerHTML =
-            consumo.toFixed(0);
-
-
-        document.getElementById("consumo_benef_resultado").innerHTML =
-            consumoBeneficiarias.toFixed(0);
-
-
-        document.getElementById("h_consumo_total").value =
-            consumoTotal.toFixed(0);
-
-    }
-
-
-
-    alterarModalidade();
-    gerarBeneficiarias();
-    calcular();
-
-
-
+})();
 </script>
+
 
 
 
